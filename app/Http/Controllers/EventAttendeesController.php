@@ -14,6 +14,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\Order as OrderService;
 use App\Models\Ticket;
+use Illuminate\Support\Arr;
 use Auth;
 use Config;
 use DB;
@@ -599,7 +600,7 @@ class EventAttendeesController extends MyBaseController
                         'attendees.arrival_time',
                     ])->get();
 
-                $data = array_map(function($object) {
+                $data = Arr::map(function($object) {
                     return (array)$object;
                 }, $data->toArray());
 
