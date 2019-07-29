@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\OrderCompletedEvent;
 use App\Models\Account;
+use App\Generators\TicketGenerator;
 use App\Models\AccountPaymentGateway;
 use App\Models\Affiliate;
 use App\Models\Attendee;
@@ -17,14 +18,16 @@ use App\Models\ReservedTickets;
 use App\Models\Ticket;
 use App\Services\Order as OrderService;
 use Carbon\Carbon;
-use Cookie;
-use DB;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Log;
-use Omnipay;
-use PDF;
+use Illuminate\Support\Facades\Log;
+use Omnipay\Omnipay;
+use Barryvdh\DomPDF\Facade as PDF;
 use PhpSpec\Exception\Exception;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 
 class EventCheckoutController extends Controller
 {
@@ -180,7 +183,7 @@ class EventCheckoutController extends Controller
             ]);
         }
 
-        if (config('attendize.enable_dummy_payment_gateway') == TRUE) {
+        if (config('attendize.enable_dummy_payment_gateway') == true) {
             $activeAccountPaymentGateway = new AccountPaymentGateway();
             $activeAccountPaymentGateway->fill(['payment_gateway_id' => config('attendize.payment_gateway_dummy')]);
             $paymentGateway = $activeAccountPaymentGateway;
@@ -351,7 +354,7 @@ class EventCheckoutController extends Controller
         try {
             //more transation data being put in here.
             $transaction_data = [];
-            if (config('attendize.enable_dummy_payment_gateway') == TRUE) {
+            if (config('attendize.enable_dummy_payment_gateway') == true) {
                 $formData = config('attendize.fake_card_data');
                 $transaction_data = [
                     'card' => $formData
@@ -777,30 +780,43 @@ class EventCheckoutController extends Controller
      */
     public function showOrderTickets(Request $request, $order_reference)
     {
-        $order = Order::where('order_reference', '=', $order_reference)->first();
+        // If demo tickect
+        if ($order_reference === 'eemple' && $request->get('event')) {
+            // Generate demo ticket
+            $order = TicketGenerator::demoData($request->get('event'));
+        } else {
+            // Le vrai tickect
+            $order = Order::where('order_reference', '=', $order_reference)->first();
+        }
 
+        // If no order
         if (!$order) {
             abort(404);
         }
-        $images = [];
-        $imgs = $order->event->images;
-        foreach ($imgs as $img) {
-            $images[] = base64_encode(file_get_contents(public_path($img->image_path)));
-        }
+        
+        // Generaing Tk
+        $tk_generator = new TicketGenerator($order);
+        $tickets = $tk_generator->createTickets();
+
 
         $data = [
-            'order'     => $order,
             'event'     => $order->event,
-            'tickets'   => $order->event->tickets,
-            'attendees' => $order->attendees,
-            'css'       => file_get_contents(public_path('assets/stylesheet/ticket.css')),
-            'image'     => base64_encode(file_get_contents(public_path($order->event->organiser->full_logo_path))),
-            'images'    => $images,
+            'tickets'   => $tickets,
         ];
 
+        $pdf_file = TicketGenerator::generateFileName($order->order_reference);
+
         if ($request->get('download') == '1') {
-            return PDF::html('Public.ViewEvent.Partials.PDFTicket', $data, 'Tickets');
+            return PDF::html('Public.ViewEvent.Partials.PDFTicket', $data, 'Tickets')->download($pdf_file['base_name']);
+        } elseif ($request->get('view') == '1') {
+            
+            return PDF::html('Public.ViewEvent.Partials.PDFTicket', $data, 'Tickets')->stream($pdf_file['base_name']);
+        } elseif ($order_reference === 'example') {
+            
+            return PDF::html('Public.ViewEvent.Partials.ExampleTicket', $data, 'Tickets');
         }
+
+
         return view('Public.ViewEvent.Partials.PDFTicket', $data);
     }
 

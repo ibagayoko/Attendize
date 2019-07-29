@@ -24,12 +24,21 @@
         .page-header {
             display: none;
         }
+        div#ticket-preview {
+            text-align: center;
+        }
+         div#ticket-preview img {
+            width: 95%;
+            border: 2px dashed #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
     </style>
 @stop
 
 @section('head')
-    {!! HTML::script('https://maps.googleapis.com/maps/api/js?libraries=places&key='.config("attendize.google_maps_geocoding_key")) !!}
-    {!! HTML::script('vendor/geocomplete/jquery.geocomplete.min.js') !!}
+    {!! Html::script('https://maps.googleapis.com/maps/api/js?libraries=places&key='.config("attendize.google_maps_geocoding_key")) !!}
+    {!! Html::script('vendor/geocomplete/jquery.geocomplete.min.js') !!}
     <script>
         $(function () {
 
@@ -100,27 +109,9 @@
 
             $('#ticket_design .colorpicker').on('change', function (e) {
                 var borderColor = $('input[name="ticket_border_color"]').val();
-                var bgColor = $('input[name="ticket_bg_color"]').val();
-                var textColor = $('input[name="ticket_text_color"]').val();
-                var subTextColor = $('input[name="ticket_sub_text_color"]').val();
-
-                $('.ticket').css({
-                    'border': '1px solid ' + borderColor,
-                    'background-color': bgColor,
-                    'color': subTextColor,
-                    'border-left-color': borderColor
-                });
-                $('.ticket h4').css({
-                    'color': textColor
-                });
-                $('.ticket .logo').css({
-                    'border-left': '1px solid ' + borderColor,
-                    'border-bottom': '1px solid ' + borderColor
-                });
-                $('.ticket .barcode').css({
-                    'border-right': '1px solid ' + borderColor,
-                    'border-bottom': '1px solid ' + borderColor,
-                    'border-top': '1px solid ' + borderColor
+                
+                $('div#ticket-preview img').css({
+                    'border-color': borderColor,
                 });
 
             });
@@ -128,6 +119,13 @@
             $('#enable_offline_payments').change(function () {
                 $('.offline_payment_details').toggle(this.checked);
             }).change();
+             /* Load example ticket image */
+             $('#ticket-preview').load('{{ route('showOrderTickets', ['order_reference' => 'example'] ).'?event='.$event->id }}');
+             /* Update ticket if form updated */
+            $(document).on('exampleTicketUpdated', {}, function (event) {
+                $('#ticket-preview').html('Loading...').delay(3000);
+                $('#ticket-preview').load('{{ route('showOrderTickets', ['order_reference' => 'example'] ).'?event='.$event->id }}');
+            });
         });
 
 
@@ -521,7 +519,7 @@
 
 
                 <div class="tab-pane {{$tab == 'ticket_design' ? 'active' : ''}}" id="ticket_design">
-                    {!! Form::model($event, array('url' => route('postEditEventTicketDesign', ['event_id' => $event->id]), 'class' => 'ajax ')) !!}
+                    {!! Form::model($event, array('url' => route('postEditEventTicketDesign', ['event_id' => $event->id]), 'class' => 'ajax ', 'id' => 'ticket-customize-form')) !!}
                     <h4>@lang("Ticket.ticket_design")</h4>
                     <div class="row">
                         <div class="col-md-6">
@@ -575,7 +573,9 @@
 
                         <div class="col-md-12">
                             <h4>@lang("Ticket.ticket_preview")</h4>
-                            @include('ManageEvent.Partials.TicketDesignPreview')
+                            <div id="ticket-preview">
+                            Loading...
+                            </div>
                         </div>
                     </div>
                     <div class="panel-footer mt15 text-right">
