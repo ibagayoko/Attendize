@@ -519,7 +519,8 @@
 
 
                 <div class="tab-pane {{$tab == 'ticket_design' ? 'active' : ''}}" id="ticket_design">
-                    {!! Form::model($event, array('url' => route('postEditEventTicketDesign', ['event_id' => $event->id]), 'class' => 'ajax ', , 'id' => 'ticket-customize-form')) !!}
+
+                    {!! Form::model($event, array('url' => route('postEditEventTicketDesign', ['event_id' => $event->id]), 'class' => 'ajax ', 'id' => 'ticket-customize-form')) !!
                     <h4>@lang("Ticket.ticket_design")</h4>
                     <div class="row">
                         <div class="col-md-6">
