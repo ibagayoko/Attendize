@@ -15,16 +15,17 @@ use App\Models\OrderItem;
 use App\Services\Order as OrderService;
 use App\Models\Ticket;
 use Illuminate\Support\Arr;
-use Auth;
-use Config;
-use DB;
+use App\Generators\TicketGenerator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Excel;
 use Illuminate\Http\Request;
-use Log;
-use Mail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Omnipay\Omnipay;
-use PDF;
-use Validator;
+use Barryvdh\DomPDF\Facade as PDF;
+use Illuminate\Support\Facades\Validator;
 
 class EventAttendeesController extends MyBaseController
 {
@@ -556,10 +557,10 @@ class EventAttendeesController extends MyBaseController
 
         $pdf_file_name = $attendee->order->order_reference . '-' . $attendee->reference_index;
         $pdf_file_path = public_path(config('attendize.event_pdf_tickets_path')) . '/' . $pdf_file_name;
-        $pdf_file = $pdf_file_path . '.pdf';
+        $pdf_file =TicketGenerator::generateFileName($attendee->order->order_reference . '-' . $attendee->reference_index);
 
 
-        return response()->download($pdf_file);
+        return response()->download($pdf_file['fullpath']);
     }
 
     /**
@@ -592,7 +593,7 @@ class EventAttendeesController extends MyBaseController
                         'attendees.first_name',
                         'attendees.last_name',
                         'attendees.email',
-			'attendees.private_reference_number',
+			            'attendees.private_reference_number',
                         'orders.order_reference',
                         'tickets.title',
                         'orders.created_at',
@@ -600,7 +601,7 @@ class EventAttendeesController extends MyBaseController
                         'attendees.arrival_time',
                     ])->get();
 
-                $data = Arr::map(function($object) {
+                $data = Arr::map(function ($object) {
                     return (array)$object;
                 }, $data->toArray());
 
@@ -609,7 +610,7 @@ class EventAttendeesController extends MyBaseController
                     'First Name',
                     'Last Name',
                     'Email',
-		    'Ticket ID',
+		            'Ticket ID',
                     'Order Reference',
                     'Ticket Type',
                     'Purchase Date',
