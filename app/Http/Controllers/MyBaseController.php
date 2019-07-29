@@ -53,7 +53,7 @@ class MyBaseController extends Controller
         if ($event->images->first() != null) {
             $image_path = $event->images()->first()->image_path;
         }
-        Arr::m
+      
         return array_merge([
             'event'      => $event,
             'questions'  => $event->questions()->get(),
