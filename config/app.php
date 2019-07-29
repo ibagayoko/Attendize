@@ -166,7 +166,6 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
-        Nitmedia\Wkhtml2pdf\L5Wkhtml2pdfServiceProvider::class,
         Mews\Purifier\PurifierServiceProvider::class,
         MaxHoffmann\Parsedown\ParsedownServiceProvider::class,
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,

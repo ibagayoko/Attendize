@@ -3,11 +3,12 @@
 namespace App\Jobs;
 
 use App\Models\Order;
+use App\Generators\TicketGenerator;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Log;
-use PDF;
+use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade as PDF;
 
 class GenerateTicket extends Job implements ShouldQueue
 {
@@ -40,13 +41,13 @@ class GenerateTicket extends Job implements ShouldQueue
     public function handle()
     {
 
-        $file_name = $this->reference;
-        $file_path = public_path(config('attendize.event_pdf_tickets_path')) . '/' . $file_name;
-        $file_with_ext = $file_path . ".pdf";
+        // Generate file name
+        $pdf_file = TicketGenerator::generateFileName($this->reference);
+        // Check if file exist before create it again
+        if (file_exists($pdf_file['fullpath'])) {
+            Log::info('Use ticket from cache: ' . $pdf_file['fullpath']);
 
-        if (file_exists($file_with_ext)) {
-            Log::info("Use ticket from cache: " . $file_with_ext);
-            return;
+            return ;
         }
 
         $order = Order::where('order_reference', $this->order_reference)->first();
@@ -57,26 +58,18 @@ class GenerateTicket extends Job implements ShouldQueue
         if ($this->isAttendeeTicket()) {
             $query = $query->where('reference_index', '=', $this->attendee_reference_index);
         }
-        $attendees = $query->get();
+        $order->attendees = $query->get();
 
-        $image_path = $event->organiser->full_logo_path;
-        $images = [];
-        $imgs = $order->event->images;
-        foreach ($imgs as $img) {
-            $images[] = base64_encode(file_get_contents(public_path($img->image_path)));
-        }
+        // generating
+        $tk_generator = new TicketGenerator($order);
+        $tickets = $tk_generator->createTickets();
 
         $data = [
-            'order'     => $order,
             'event'     => $event,
-            'attendees' => $attendees,
-            'css'       => file_get_contents(public_path('assets/stylesheet/ticket.css')),
-            'image'     => base64_encode(file_get_contents(public_path($image_path))),
-            'images'    => $images,
+            'tickets'    => $tickets,
         ];
         try {
-            PDF::setOutputMode('F'); // force to file
-            PDF::html('Public.ViewEvent.Partials.PDFTicket', $data, $file_path);
+            PDF::loadView('Public.ViewEvent.Partials.PDFTicket', $data)->save($pdf_file['fullpath']);
             Log::info("Ticket generated!");
         } catch(\Exception $e) {
             Log::error("Error generating ticket. This can be due to permissions on vendor/nitmedia/wkhtml2pdf/src/Nitmedia/Wkhtml2pdf/lib. This folder requires write and execute permissions for the web user");
