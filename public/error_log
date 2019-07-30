@@ -1,0 +1,16 @@
+[29-Jul-2019 18:53:42 UTC] PHP Fatal error:  During class fetch: Uncaught ParseError: syntax error, unexpected 'return' (T_RETURN) in /home/bagax10m/bi.ibaga.ml/app/Http/Controllers/MyBaseController.php:57
+Stack trace:
+#0 /home/bagax10m/bi.ibaga.ml/vendor/composer/ClassLoader.php(322): Composer\Autoload\includeFile('/home/bagax10m/...')
+#1 [internal function]: Composer\Autoload\ClassLoader->loadClass('App\\Http\\Contro...')
+#2 /home/bagax10m/bi.ibaga.ml/app/Http/Controllers/OrganiserController.php(9): spl_autoload_call('App\\Http\\Contro...')
+#3 /home/bagax10m/bi.ibaga.ml/vendor/composer/ClassLoader.php(444): include('/home/bagax10m/...')
+#4 /home/bagax10m/bi.ibaga.ml/vendor/composer/ClassLoader.php(322): Composer\Autoload\includeFile('/home/bagax10m/...')
+#5 [internal function]: Composer\Autoload\ClassLoader->loadClass('App\\Http\\Contro...')
+#6 [internal function]: spl_autoload_call('App\\Http\\Contro...')
+#7 /home/bagax10m/bi.ibaga.ml/vendor/laravel/framework/src/Illuminate/Container/Container.php(790): ReflectionClass->__construct('App\\Http\\Contro in /home/bagax10m/bi.ibaga.ml/app/Http/Controllers/OrganiserController.php on line 9
+[29-Jul-2019 22:51:30 UTC] PHP Fatal error:  Cannot use empty array elements in arrays in /home/bagax10m/bi.ibaga.ml/storage/framework/views/3f56215675c282eff36ad051f09e155c36308d5b.php on line 568
+[29-Jul-2019 22:51:32 UTC] PHP Fatal error:  Cannot use empty array elements in arrays in /home/bagax10m/bi.ibaga.ml/storage/framework/views/3f56215675c282eff36ad051f09e155c36308d5b.php on line 568
+[29-Jul-2019 22:52:28 UTC] PHP Fatal error:  Cannot use empty array elements in arrays in /home/bagax10m/bi.ibaga.ml/storage/framework/views/3f56215675c282eff36ad051f09e155c36308d5b.php on line 568
+[29-Jul-2019 22:52:45 UTC] PHP Fatal error:  Cannot use empty array elements in arrays in /home/bagax10m/bi.ibaga.ml/storage/framework/views/3f56215675c282eff36ad051f09e155c36308d5b.php on line 568
+[29-Jul-2019 22:52:56 UTC] PHP Fatal error:  Cannot use empty array elements in arrays in /home/bagax10m/bi.ibaga.ml/storage/framework/views/3f56215675c282eff36ad051f09e155c36308d5b.php on line 568
+[29-Jul-2019 22:54:35 UTC] PHP Fatal error:  Cannot use empty array elements in arrays in /home/bagax10m/bi.ibaga.ml/storage/framework/views/3f56215675c282eff36ad051f09e155c36308d5b.php on line 568
