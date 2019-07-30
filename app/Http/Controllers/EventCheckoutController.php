@@ -781,7 +781,7 @@ class EventCheckoutController extends Controller
     public function showOrderTickets(Request $request, $order_reference)
     {
         // If demo tickect
-        if ($order_reference === 'eemple' && $request->get('event')) {
+        if ($order_reference === 'example' && $request->get('event')) {
             // Generate demo ticket
             $order = TicketGenerator::demoData($request->get('event'));
         } else {
@@ -813,7 +813,7 @@ class EventCheckoutController extends Controller
             return PDF::loadView('Public.ViewEvent.Partials.PDFTicket', $data)->stream($pdf_file['base_name']);
         } elseif ($order_reference === 'example') {
             
-            return PDF::loadView('Public.ViewEvent.Partials.ExampleTicket', $data);
+            return PDF::loadView('Public.ViewEvent.Partials.ExampleTicket', $data)->getDomPDF()->output_html();
         }
 
 
