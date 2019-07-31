@@ -17,6 +17,7 @@ class CreateEventAccessCodesTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('event_id');
             $table->string('code')->default('');
+            $table->unsignedInteger('usage_count')->default(0);
             $table->timestamps();
             $table->softDeletes();
 

@@ -163,6 +163,10 @@ class CreateUsersTable extends Migration
             $table->string('page_header_bg_color', 20)->default('#76a867');
             $table->string('page_bg_color', 20)->default('#EEEEEE');
             $table->string('page_text_color', 20)->default('#FFFFFF');
+            $table->boolean('charge_tax')->default(0);
+            $table->string('tax_name', 15)->nullable();
+            $table->float('tax_value')->nullable();
+            $table->string('tax_id', 100)->nullable();
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
         });
@@ -212,7 +216,6 @@ class CreateUsersTable extends Migration
             $t->string('location_long')->nullable();
             $t->string('location_google_place_id')->nullable();
 
-            $t->unsignedInteger('ask_for_all_attendees_info')->default(0);
 
             $t->text('pre_order_display_message')->nullable();
 
@@ -325,6 +328,7 @@ class CreateUsersTable extends Migration
             $t->decimal('organiser_fees_volume', 13, 2)->default(0);
 
             $t->tinyInteger('is_paused')->default(0);
+            $t->boolean('is_hidden')->default(0);
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('order_id')->references('id')->on('orders');
