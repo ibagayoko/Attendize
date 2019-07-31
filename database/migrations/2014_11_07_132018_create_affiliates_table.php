@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 
-class AddAffiliatesTable extends Migration
+class CreateAffiliatesTable extends Migration
 {
     /**
      * Run the migrations.

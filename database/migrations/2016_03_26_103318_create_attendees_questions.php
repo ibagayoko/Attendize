@@ -30,7 +30,6 @@ class CreateAttendeesQuestions extends Migration
             $table->increments('id');
 
             $table->string('title', 255);
-            $table->text('instructions');
 
             $table->unsignedInteger('question_type_id');
             $table->unsignedInteger('account_id')->index();

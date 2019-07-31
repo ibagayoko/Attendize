@@ -80,11 +80,10 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('date_format_id')->nullable();
             $t->unsignedInteger('datetime_format_id')->nullable();
             $t->unsignedInteger('currency_id')->nullable();
-            //$t->unsignedInteger('payment_gateway_id')->default(config('attendize.default_payment_gateway'));
-
+            $t->unsignedInteger('payment_gateway_id')->default(config('attendize.payment_gateway_stripe'));
             $t->nullableTimestamps();
             $t->softDeletes();
-
+            
             $t->string('name')->nullable();
             $t->string('last_ip')->nullable();
             $t->timestamp('last_login_date')->nullable();
@@ -106,11 +105,11 @@ class CreateUsersTable extends Migration
             $t->string('stripe_secret_key', 55)->nullable();
             $t->string('stripe_publishable_key', 55)->nullable();
             $t->text('stripe_data_raw', 55)->nullable();
-
+            
             $t->foreign('timezone_id')->references('id')->on('timezones');
             $t->foreign('date_format_id')->references('id')->on('date_formats');
             $t->foreign('datetime_format_id')->references('id')->on('date_formats');
-            //$t->foreign('payment_gateway_id')->references('id')->on('payment_gateways');
+            $t->foreign('payment_gateway_id')->references('id')->on('payment_gateways');
             $t->foreign('currency_id')->references('id')->on('currencies');
         });
 
@@ -157,6 +156,13 @@ class CreateUsersTable extends Migration
             $table->string('google_analytics_code')->nullable();
             $table->string('google_tag_manager_code', 20)->nullable();
             $table->boolean('enable_organiser_page')->default(true);
+            
+            $table->boolean('show_twitter_widget')->default(false);
+            $table->boolean('show_facebook_widget')->default(false);
+
+            $table->string('page_header_bg_color', 20)->default('#76a867');
+            $table->string('page_bg_color', 20)->default('#EEEEEE');
+            $table->string('page_text_color', 20)->default('#FFFFFF');
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
         });
@@ -237,6 +243,9 @@ class CreateUsersTable extends Migration
             $t->string('ticket_sub_text_color', 20)->default('#999999');
             $t->string('google_tag_manager_code', 20)->nullable();
 
+            $t->string('questions_collection_type', 10)->default('buyer'); // buyer or attendee
+            $t->integer('checkout_timeout_after')->default(8); // timeout in mins for checkout
+
             $t->nullableTimestamps();
             $t->softDeletes();
         });
@@ -275,6 +284,9 @@ class CreateUsersTable extends Migration
             $t->decimal('amount_refunded', 13, 2)->nullable();
 
             $t->unsignedInteger('event_id')->index();
+            $t->unsignedInteger('payment_gateway_id')->nullable();
+
+            $t->foreign('payment_gateway_id')->references('id')->on('payment_gateways');
             $t->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
