@@ -56,6 +56,7 @@ class EventViewController extends Controller
                     'name'       => $request->get('ref'),
                     'event_id'   => $event_id,
                     'account_id' => $event->account_id,
+                    'tickets_sold' => 0,
                 ]);
 
                 ++$affiliate->visits;
