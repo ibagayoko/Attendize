@@ -2,31 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\OrderCompletedEvent;
-use App\Models\Account;
-use App\Generators\TicketGenerator;
-use App\Models\AccountPaymentGateway;
-use App\Models\Affiliate;
-use App\Models\Attendee;
+use Carbon\Carbon;
+use Omnipay\Omnipay;
 use App\Models\Event;
-use App\Models\EventStats;
 use App\Models\Order;
+use App\Models\Ticket;
+use App\Models\Attendee;
+use App\Models\Affiliate;
 use App\Models\OrderItem;
-use App\Models\PaymentGateway;
+use App\Models\EventStats;
+use Illuminate\Http\Request;
 use App\Models\QuestionAnswer;
 use App\Models\ReservedTickets;
-use App\Models\Ticket;
-use App\Services\Order as OrderService;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Omnipay\Omnipay;
-use Barryvdh\DomPDF\Facade as PDF;
 use PhpSpec\Exception\Exception;
+use Barryvdh\DomPDF\Facade as PDF;
+use Illuminate\Support\Facades\DB;
+use App\Events\OrderCompletedEvent;
+use App\Generators\TicketGenerator;
+use Illuminate\Support\Facades\Log;
+use App\Models\AccountPaymentGateway;
+use Illuminate\Support\Facades\Cookie;
+use App\Services\Order as OrderService;
 use Illuminate\Support\Facades\Validator;
 
 class EventCheckoutController extends Controller
@@ -51,7 +47,7 @@ class EventCheckoutController extends Controller
     }
 
     /**
-     * Validate a ticket request. If successful reserve the tickets and redirect to checkout
+     * Validate a ticket request. If successful reserve the tickets and redirect to checkout.
      *
      * @param Request $request
      * @param $event_id
@@ -66,7 +62,7 @@ class EventCheckoutController extends Controller
 
         $event = Event::findOrFail($event_id);
 
-        if (!$request->has('tickets')) {
+        if (! $request->has('tickets')) {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'No tickets selected',
@@ -95,7 +91,7 @@ class EventCheckoutController extends Controller
         $quantity_available_validation_rules = [];
 
         foreach ($ticket_ids as $ticket_id) {
-            $current_ticket_quantity = (int)$request->get('ticket_' . $ticket_id);
+            $current_ticket_quantity = (int) $request->get('ticket_'.$ticket_id);
 
             if ($current_ticket_quantity < 1) {
                 continue;
@@ -106,18 +102,18 @@ class EventCheckoutController extends Controller
             $ticket_quantity_remaining = $ticket->quantity_remaining;
             $max_per_person = min($ticket_quantity_remaining, $ticket->max_per_person);
 
-            $quantity_available_validation_rules['ticket_' . $ticket_id] = [
+            $quantity_available_validation_rules['ticket_'.$ticket_id] = [
                 'numeric',
-                'min:' . $ticket->min_per_person,
-                'max:' . $max_per_person
+                'min:'.$ticket->min_per_person,
+                'max:'.$max_per_person,
             ];
 
             $quantity_available_validation_messages = [
-                'ticket_' . $ticket_id . '.max' => 'The maximum number of tickets you can register is ' . $ticket_quantity_remaining,
-                'ticket_' . $ticket_id . '.min' => 'You must select at least ' . $ticket->min_per_person . ' tickets.',
+                'ticket_'.$ticket_id.'.max' => 'The maximum number of tickets you can register is '.$ticket_quantity_remaining,
+                'ticket_'.$ticket_id.'.min' => 'You must select at least '.$ticket->min_per_person.' tickets.',
             ];
 
-            $validator = Validator::make(['ticket_' . $ticket_id => (int)$request->get('ticket_' . $ticket_id)],
+            $validator = Validator::make(['ticket_'.$ticket_id => (int) $request->get('ticket_'.$ticket_id)],
                 $quantity_available_validation_rules, $quantity_available_validation_messages);
 
             if ($validator->fails()) {
@@ -155,22 +151,22 @@ class EventCheckoutController extends Controller
                 /*
                  * Create our validation rules here
                  */
-                $validation_rules['ticket_holder_first_name.' . $i . '.' . $ticket_id] = ['required'];
-                $validation_rules['ticket_holder_last_name.' . $i . '.' . $ticket_id] = ['required'];
-                $validation_rules['ticket_holder_email.' . $i . '.' . $ticket_id] = ['required', 'email'];
+                $validation_rules['ticket_holder_first_name.'.$i.'.'.$ticket_id] = ['required'];
+                $validation_rules['ticket_holder_last_name.'.$i.'.'.$ticket_id] = ['required'];
+                $validation_rules['ticket_holder_email.'.$i.'.'.$ticket_id] = ['required', 'email'];
 
-                $validation_messages['ticket_holder_first_name.' . $i . '.' . $ticket_id . '.required'] = 'Ticket holder ' . ($i + 1) . '\'s first name is required';
-                $validation_messages['ticket_holder_last_name.' . $i . '.' . $ticket_id . '.required'] = 'Ticket holder ' . ($i + 1) . '\'s last name is required';
-                $validation_messages['ticket_holder_email.' . $i . '.' . $ticket_id . '.required'] = 'Ticket holder ' . ($i + 1) . '\'s email is required';
-                $validation_messages['ticket_holder_email.' . $i . '.' . $ticket_id . '.email'] = 'Ticket holder ' . ($i + 1) . '\'s email appears to be invalid';
+                $validation_messages['ticket_holder_first_name.'.$i.'.'.$ticket_id.'.required'] = 'Ticket holder '.($i + 1).'\'s first name is required';
+                $validation_messages['ticket_holder_last_name.'.$i.'.'.$ticket_id.'.required'] = 'Ticket holder '.($i + 1).'\'s last name is required';
+                $validation_messages['ticket_holder_email.'.$i.'.'.$ticket_id.'.required'] = 'Ticket holder '.($i + 1).'\'s email is required';
+                $validation_messages['ticket_holder_email.'.$i.'.'.$ticket_id.'.email'] = 'Ticket holder '.($i + 1).'\'s email appears to be invalid';
 
                 /*
                  * Validation rules for custom questions
                  */
                 foreach ($ticket->questions as $question) {
                     if ($question->is_required && $question->is_enabled) {
-                        $validation_rules['ticket_holder_questions.' . $ticket_id . '.' . $i . '.' . $question->id] = ['required'];
-                        $validation_messages['ticket_holder_questions.' . $ticket_id . '.' . $i . '.' . $question->id . '.required'] = "This question is required";
+                        $validation_rules['ticket_holder_questions.'.$ticket_id.'.'.$i.'.'.$question->id] = ['required'];
+                        $validation_messages['ticket_holder_questions.'.$ticket_id.'.'.$i.'.'.$question->id.'.required'] = 'This question is required';
                     }
                 }
             }
@@ -190,7 +186,7 @@ class EventCheckoutController extends Controller
         } else {
             $activeAccountPaymentGateway = $event->account->getGateway($event->account->payment_gateway_id);
             //if no payment gateway configured and no offline pay, don't go to the next step and show user error
-            if (empty($activeAccountPaymentGateway) && !$event->enable_offline_payments) {
+            if (empty($activeAccountPaymentGateway) && ! $event->enable_offline_payments) {
                 return response()->json([
                     'status'  => 'error',
                     'message' => 'No payment gateway configured',
@@ -202,7 +198,7 @@ class EventCheckoutController extends Controller
         /*
          * The 'ticket_order_{event_id}' session stores everything we need to complete the transaction.
          */
-        session()->put('ticket_order_' . $event->id, [
+        session()->put('ticket_order_'.$event->id, [
             'validation_rules'        => $validation_rules,
             'validation_messages'     => $validation_messages,
             'event_id'                => $event->id,
@@ -217,9 +213,9 @@ class EventCheckoutController extends Controller
             'total_booking_fee'       => $booking_fee + $organiser_booking_fee,
             'order_requires_payment'  => (ceil($order_total) == 0) ? false : true,
             'account_id'              => $event->account->id,
-            'affiliate_referral'      => Cookie::get('affiliate_' . $event_id),
+            'affiliate_referral'      => Cookie::get('affiliate_'.$event_id),
             'account_payment_gateway' => $activeAccountPaymentGateway,
-            'payment_gateway'         => $paymentGateway
+            'payment_gateway'         => $paymentGateway,
         ]);
 
         /*
@@ -232,7 +228,7 @@ class EventCheckoutController extends Controller
                 'redirectUrl' => route('showEventCheckout', [
                         'event_id'    => $event_id,
                         'is_embedded' => $this->is_embedded,
-                    ]) . '#order_form',
+                    ]).'#order_form',
             ]);
         }
 
@@ -243,7 +239,7 @@ class EventCheckoutController extends Controller
     }
 
     /**
-     * Show the checkout page
+     * Show the checkout page.
      *
      * @param Request $request
      * @param $event_id
@@ -251,10 +247,11 @@ class EventCheckoutController extends Controller
      */
     public function showEventCheckout(Request $request, $event_id)
     {
-        $order_session = session()->get('ticket_order_' . $event_id);
+        $order_session = session()->get('ticket_order_'.$event_id);
 
-        if (!$order_session || $order_session['expires'] < Carbon::now()) {
+        if (! $order_session || $order_session['expires'] < Carbon::now()) {
             $route_name = $this->is_embedded ? 'showEmbeddedEventPage' : 'showEventPage';
+
             return redirect()->route($route_name, ['event_id' => $event_id]);
         }
 
@@ -269,7 +266,7 @@ class EventCheckoutController extends Controller
                 'event'           => $event,
                 'secondsToExpire' => $secondsToExpire,
                 'is_embedded'     => $this->is_embedded,
-                'orderService'    => $orderService
+                'orderService'    => $orderService,
                 ];
 
         if ($this->is_embedded) {
@@ -280,7 +277,7 @@ class EventCheckoutController extends Controller
     }
 
     /**
-     * Create the order, handle payment, update stats, fire off email jobs then redirect user
+     * Create the order, handle payment, update stats, fire off email jobs then redirect user.
      *
      * @param Request $request
      * @param $event_id
@@ -289,19 +286,19 @@ class EventCheckoutController extends Controller
     public function postCreateOrder(Request $request, $event_id)
     {
         //If there's no session kill the request and redirect back to the event homepage.
-        if (!session()->get('ticket_order_' . $event_id)) {
+        if (! session()->get('ticket_order_'.$event_id)) {
             return response()->json([
                 'status'      => 'error',
                 'message'     => 'Your session has expired.',
                 'redirectUrl' => route('showEventPage', [
                     'event_id' => $event_id,
-                ])
+                ]),
             ]);
         }
 
         $event = Event::findOrFail($event_id);
         $order = new Order();
-        $ticket_order = session()->get('ticket_order_' . $event_id);
+        $ticket_order = session()->get('ticket_order_'.$event_id);
 
         $validation_rules = $ticket_order['validation_rules'];
         $validation_messages = $ticket_order['validation_messages'];
@@ -331,7 +328,7 @@ class EventCheckoutController extends Controller
             $order->messages = $order->messages + $businessMessages;
         }
 
-        if (!$order->validate($request->all())) {
+        if (! $order->validate($request->all())) {
             return response()->json([
                 'status'   => 'error',
                 'messages' => $order->errors(),
@@ -339,7 +336,7 @@ class EventCheckoutController extends Controller
         }
 
         //Add the request data to a session in case payment is required off-site
-        session()->push('ticket_order_' . $event_id . '.request_data', $request->except(['card-number', 'card-cvc']));
+        session()->push('ticket_order_'.$event_id.'.request_data', $request->except(['card-number', 'card-cvc']));
 
         $orderRequiresPayment = $ticket_order['order_requires_payment'];
 
@@ -347,7 +344,7 @@ class EventCheckoutController extends Controller
             return $this->completeOrder($event_id);
         }
 
-        if (!$orderRequiresPayment) {
+        if (! $orderRequiresPayment) {
             return $this->completeOrder($event_id);
         }
 
@@ -357,12 +354,11 @@ class EventCheckoutController extends Controller
             if (config('attendize.enable_dummy_payment_gateway') == true) {
                 $formData = config('attendize.fake_card_data');
                 $transaction_data = [
-                    'card' => $formData
+                    'card' => $formData,
                 ];
 
                 $gateway = Omnipay::create('Dummy');
                 $gateway->initialize();
-
             } else {
                 $gateway = Omnipay::create($ticket_order['payment_gateway']->name);
                 $gateway->initialize($ticket_order['account_payment_gateway']->config + [
@@ -376,7 +372,7 @@ class EventCheckoutController extends Controller
             $transaction_data += [
                     'amount'      => $orderService->getGrandTotal(),
                     'currency'    => $event->currency->code,
-                    'description' => 'Order for customer: ' . $request->get('order_email'),
+                    'description' => 'Order for customer: '.$request->get('order_email'),
             ];
 
             //TODO: class with an interface that builds the transaction data.
@@ -386,7 +382,7 @@ class EventCheckoutController extends Controller
                     $transaction_data += [
                         'token'         => $token,
                         'receipt_email' => $request->get('order_email'),
-                        'card' => $formData
+                        'card' => $formData,
                     ];
                     break;
                 case config('attendize.payment_gateway_paypal'):
@@ -394,15 +390,15 @@ class EventCheckoutController extends Controller
                     $transaction_data += [
                         'cancelUrl' => route('showEventCheckoutPaymentReturn', [
                             'event_id'             => $event_id,
-                            'is_payment_cancelled' => 1
+                            'is_payment_cancelled' => 1,
                         ]),
                         'returnUrl' => route('showEventCheckoutPaymentReturn', [
                             'event_id'              => $event_id,
-                            'is_payment_successful' => 1
+                            'is_payment_successful' => 1,
                         ]),
                         'brandName' => isset($ticket_order['account_payment_gateway']->config['brandingName'])
                             ? $ticket_order['account_payment_gateway']->config['brandingName']
-                            : $event->organiser->name
+                            : $event->organiser->name,
                     ];
                     break;
                 case config('attendize.payment_gateway_stripe'):
@@ -414,9 +410,10 @@ class EventCheckoutController extends Controller
                     break;
                 default:
                     Log::error('No payment gateway configured.');
+
                     return response()->json([
                         'status'  => 'error',
-                        'message' => 'No payment gateway configured.'
+                        'message' => 'No payment gateway configured.',
                     ]);
                     break;
             }
@@ -426,34 +423,31 @@ class EventCheckoutController extends Controller
             $response = $transaction->send();
 
             if ($response->isSuccessful()) {
-
-                session()->push('ticket_order_' . $event_id . '.transaction_id',
+                session()->push('ticket_order_'.$event_id.'.transaction_id',
                     $response->getTransactionReference());
 
                 return $this->completeOrder($event_id);
-
             } elseif ($response->isRedirect()) {
 
                 /*
                  * As we're going off-site for payment we need to store some data in a session so it's available
                  * when we return
                  */
-                session()->push('ticket_order_' . $event_id . '.transaction_data', $transaction_data);
-                Log::info("Redirect url: " . $response->getRedirectUrl());
+                session()->push('ticket_order_'.$event_id.'.transaction_data', $transaction_data);
+                Log::info('Redirect url: '.$response->getRedirectUrl());
 
                 $return = [
                     'status'       => 'success',
                     'redirectUrl'  => $response->getRedirectUrl(),
-                    'message'      => 'Redirecting to ' . $ticket_order['payment_gateway']->provider_name
+                    'message'      => 'Redirecting to '.$ticket_order['payment_gateway']->provider_name,
                 ];
 
                 // GET method requests should not have redirectData on the JSON return string
-                if($response->getRedirectMethod() == 'POST') {
+                if ($response->getRedirectMethod() == 'POST') {
                     $return['redirectData'] = $response->getRedirectData();
                 }
 
                 return response()->json($return);
-
             } else {
                 // display error to customer
                 return response()->json([
@@ -472,13 +466,11 @@ class EventCheckoutController extends Controller
                 'message' => $error,
             ]);
         }
-
     }
-
 
     /**
      * Attempt to complete a user's payment when they return from
-     * an off-site gateway
+     * an off-site gateway.
      *
      * @param Request $request
      * @param $event_id
@@ -486,16 +478,16 @@ class EventCheckoutController extends Controller
      */
     public function showEventCheckoutPaymentReturn(Request $request, $event_id)
     {
-
         if ($request->get('is_payment_cancelled') == '1') {
             session()->flash('message', trans('Event.payment_cancelled'));
+
             return response()->redirectToRoute('showEventCheckout', [
                 'event_id'             => $event_id,
                 'is_payment_cancelled' => 1,
             ]);
         }
 
-        $ticket_order = session()->get('ticket_order_' . $event_id);
+        $ticket_order = session()->get('ticket_order_'.$event_id);
         $gateway = Omnipay::create($ticket_order['payment_gateway']->name);
 
         $gateway->initialize($ticket_order['account_payment_gateway']->config + [
@@ -507,20 +499,21 @@ class EventCheckoutController extends Controller
         $response = $transaction->send();
 
         if ($response->isSuccessful()) {
-            session()->push('ticket_order_' . $event_id . '.transaction_id', $response->getTransactionReference());
+            session()->push('ticket_order_'.$event_id.'.transaction_id', $response->getTransactionReference());
+
             return $this->completeOrder($event_id, false);
         } else {
             session()->flash('message', $response->getMessage());
+
             return response()->redirectToRoute('showEventCheckout', [
                 'event_id'          => $event_id,
                 'is_payment_failed' => 1,
             ]);
         }
-
     }
 
     /**
-     * Complete an order
+     * Complete an order.
      *
      * @param $event_id
      * @param bool|true $return_json
@@ -528,13 +521,11 @@ class EventCheckoutController extends Controller
      */
     public function completeOrder($event_id, $return_json = true)
     {
-
         DB::beginTransaction();
 
         try {
-
             $order = new Order();
-            $ticket_order = session()->get('ticket_order_' . $event_id);
+            $ticket_order = session()->get('ticket_order_'.$event_id);
             $request_data = $ticket_order['request_data'][0];
             $event = Event::findOrFail($ticket_order['event_id']);
             $attendee_increment = 1;
@@ -546,7 +537,7 @@ class EventCheckoutController extends Controller
             if (isset($ticket_order['transaction_id'])) {
                 $order->transaction_id = $ticket_order['transaction_id'][0];
             }
-            if ($ticket_order['order_requires_payment'] && !isset($request_data['pay_offline'])) {
+            if ($ticket_order['order_requires_payment'] && ! isset($request_data['pay_offline'])) {
                 $order->payment_gateway_id = $ticket_order['payment_gateway']->id;
             }
             $order->first_name = sanitise($request_data['order_first_name']);
@@ -562,16 +553,15 @@ class EventCheckoutController extends Controller
             $order->is_payment_received = isset($request_data['pay_offline']) ? 0 : 1;
 
             // Business details is selected, we need to save the business details
-            if (isset($request_data['is_business']) && (bool)$request_data['is_business']) {
+            if (isset($request_data['is_business']) && (bool) $request_data['is_business']) {
                 $order->is_business = $request_data['is_business'];
                 $order->business_name = sanitise($request_data['business_name']);
                 $order->business_tax_number = sanitise($request_data['business_tax_number']);
                 $order->business_address_line_one = sanitise($request_data['business_address_line1']);
-                $order->business_address_line_two  = sanitise($request_data['business_address_line2']);
-                $order->business_address_state_province  = sanitise($request_data['business_address_state']);
+                $order->business_address_line_two = sanitise($request_data['business_address_line2']);
+                $order->business_address_state_province = sanitise($request_data['business_address_state']);
                 $order->business_address_city = sanitise($request_data['business_address_city']);
                 $order->business_address_code = sanitise($request_data['business_address_code']);
-
             }
 
             // Calculating grand total including tax
@@ -629,7 +619,6 @@ class EventCheckoutController extends Controller
                 $ticket->increment('organiser_fees_volume',
                     ($attendee_details['ticket']['organiser_booking_fee'] * $attendee_details['qty']));
 
-
                 /*
                  * Insert order items (for use in generating invoices)
                  */
@@ -645,11 +634,10 @@ class EventCheckoutController extends Controller
                  * Create the attendees
                  */
                 for ($i = 0; $i < $attendee_details['qty']; $i++) {
-
                     $attendee = new Attendee();
-                    $attendee->first_name = strip_tags($request_data["ticket_holder_first_name"][$i][$attendee_details['ticket']['id']]);
-                    $attendee->last_name = strip_tags($request_data["ticket_holder_last_name"][$i][$attendee_details['ticket']['id']]);
-                    $attendee->email = $request_data["ticket_holder_email"][$i][$attendee_details['ticket']['id']];
+                    $attendee->first_name = strip_tags($request_data['ticket_holder_first_name'][$i][$attendee_details['ticket']['id']]);
+                    $attendee->last_name = strip_tags($request_data['ticket_holder_last_name'][$i][$attendee_details['ticket']['id']]);
+                    $attendee->email = $request_data['ticket_holder_email'][$i][$attendee_details['ticket']['id']];
                     $attendee->event_id = $event_id;
                     $attendee->order_id = $order->id;
                     $attendee->ticket_id = $attendee_details['ticket']['id'];
@@ -657,13 +645,10 @@ class EventCheckoutController extends Controller
                     $attendee->reference_index = $attendee_increment;
                     $attendee->save();
 
-
                     /*
                      * Save the attendee's questions
                      */
                     foreach ($attendee_details['ticket']->questions as $question) {
-
-
                         $ticket_answer = isset($ticket_questions[$attendee_details['ticket']->id][$i][$question->id]) ? $ticket_questions[$attendee_details['ticket']->id][$i][$question->id] : null;
 
                         if (is_null($ticket_answer)) {
@@ -676,39 +661,34 @@ class EventCheckoutController extends Controller
                          */
                         $ticket_answer = is_array($ticket_answer) ? implode(', ', $ticket_answer) : $ticket_answer;
 
-                        if (!empty($ticket_answer)) {
+                        if (! empty($ticket_answer)) {
                             QuestionAnswer::create([
                                 'answer_text' => $ticket_answer,
                                 'attendee_id' => $attendee->id,
                                 'event_id'    => $event->id,
                                 'account_id'  => $event->account->id,
-                                'question_id' => $question->id
+                                'question_id' => $question->id,
                             ]);
-
                         }
                     }
-
 
                     /* Keep track of total number of attendees */
                     $attendee_increment++;
                 }
             }
-
         } catch (Exception $e) {
-
             Log::error($e);
             DB::rollBack();
 
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Whoops! There was a problem processing your order. Please try again.'
+                'message' => 'Whoops! There was a problem processing your order. Please try again.',
             ]);
-
         }
         //save the order to the database
         DB::commit();
         //forget the order in the session
-        session()->forget('ticket_order_' . $event->id);
+        session()->forget('ticket_order_'.$event->id);
 
         /*
          * Remove any tickets the user has reserved after they have been ordered for the user
@@ -718,7 +698,6 @@ class EventCheckoutController extends Controller
         // Queue up some tasks - Emails to be sent, PDFs etc.
         Log::info('Firing the event');
         event(new OrderCompletedEvent($order));
-
 
         if ($return_json) {
             return response()->json([
@@ -734,12 +713,10 @@ class EventCheckoutController extends Controller
             'is_embedded'     => $this->is_embedded,
             'order_reference' => $order->order_reference,
         ]);
-
-
     }
 
     /**
-     * Show the order details page
+     * Show the order details page.
      *
      * @param Request $request
      * @param $order_reference
@@ -749,7 +726,7 @@ class EventCheckoutController extends Controller
     {
         $order = Order::where('order_reference', '=', $order_reference)->first();
 
-        if (!$order) {
+        if (! $order) {
             abort(404);
         }
 
@@ -772,7 +749,7 @@ class EventCheckoutController extends Controller
     }
 
     /**
-     * Shows the tickets for an order - either HTML or PDF
+     * Shows the tickets for an order - either HTML or PDF.
      *
      * @param Request $request
      * @param $order_reference
@@ -790,14 +767,13 @@ class EventCheckoutController extends Controller
         }
 
         // If no order
-        if (!$order) {
+        if (! $order) {
             abort(404);
         }
-        
+
         // Generaing Tk
         $tk_generator = new TicketGenerator($order);
         $tickets = $tk_generator->createTickets();
-
 
         $data = [
             'event'     => $order->event,
@@ -809,16 +785,11 @@ class EventCheckoutController extends Controller
         if ($request->get('download') == '1') {
             return PDF::loadView('Public.ViewEvent.Partials.PDFTicket', $data)->download($pdf_file['base_name']);
         } elseif ($request->get('view') == '1') {
-            
             return PDF::loadView('Public.ViewEvent.Partials.PDFTicket', $data)->stream($pdf_file['base_name']);
         } elseif ($order_reference === 'example') {
-            
             return PDF::loadView('Public.ViewEvent.Partials.ExampleTicket', $data)->getDomPDF()->output_html();
         }
 
-
         return view('Public.ViewEvent.Partials.PDFTicket', $data);
     }
-
 }
-

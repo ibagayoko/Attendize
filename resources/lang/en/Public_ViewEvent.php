@@ -85,5 +85,5 @@ return [
   'your_information' => 'Your information',
   'your_message' => 'Your message',
   'your_name' => 'Your name',
-  'your' => 'Your'
+  'your' => 'Your',
 ];

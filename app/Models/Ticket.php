@@ -20,20 +20,21 @@ class Ticket extends MyBaseModel
     public function rules()
     {
         $format = config('attendize.default_datetime_format');
+
         return [
             'title'              => 'required',
             'price'              => 'required|numeric|min:0',
             'description'        => '',
             'start_sale_date'    => 'date_format:"'.$format.'"',
             'end_sale_date'      => 'date_format:"'.$format.'"|after:start_sale_date',
-            'quantity_available' => 'integer|min:'.($this->quantity_sold + $this->quantity_reserved)
+            'quantity_available' => 'integer|min:'.($this->quantity_sold + $this->quantity_reserved),
         ];
     }
 
     /**
      * The validation error messages.
      *
-     * @var array $messages
+     * @var array
      */
     public $messages = [
         'price.numeric'              => 'The price must be a valid number (e.g 12.50)',
@@ -75,7 +76,7 @@ class Ticket extends MyBaseModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    function event_access_codes()
+    public function event_access_codes()
     {
         return $this->belongsToMany(
             EventAccessCodes::class,
@@ -93,13 +94,13 @@ class Ticket extends MyBaseModel
     }
 
     /**
-     * Parse start_sale_date to a Carbon instance
+     * Parse start_sale_date to a Carbon instance.
      *
      * @param string $date DateTime
      */
     public function setStartSaleDateAttribute($date)
     {
-        if (!$date) {
+        if (! $date) {
             $this->attributes['start_sale_date'] = Carbon::now();
         } else {
             $this->attributes['start_sale_date'] = Carbon::createFromFormat(
@@ -110,13 +111,13 @@ class Ticket extends MyBaseModel
     }
 
     /**
-     * Parse end_sale_date to a Carbon instance
+     * Parse end_sale_date to a Carbon instance.
      *
      * @param string|null $date DateTime
      */
     public function setEndSaleDateAttribute($date)
     {
-        if (!$date) {
+        if (! $date) {
             $this->attributes['end_sale_date'] = null;
         } else {
             $this->attributes['end_sale_date'] = Carbon::createFromFormat(
@@ -192,7 +193,7 @@ class Ticket extends MyBaseModel
      */
     public function getBookingFeeAttribute()
     {
-        return (int)ceil($this->price) === 0 ? 0 : round(
+        return (int) ceil($this->price) === 0 ? 0 : round(
             ($this->price * (config('attendize.ticket_booking_fee_percentage') / 100)) + (config('attendize.ticket_booking_fee_fixed')),
             2
         );
@@ -205,7 +206,7 @@ class Ticket extends MyBaseModel
      */
     public function getOrganiserBookingFeeAttribute()
     {
-        return (int)ceil($this->price) === 0 ? 0 : round(
+        return (int) ceil($this->price) === 0 ? 0 : round(
             ($this->price * ($this->event->organiser_fee_percentage / 100)) + ($this->event->organiser_fee_fixed),
             2
         );
@@ -252,7 +253,7 @@ class Ticket extends MyBaseModel
             return config('attendize.ticket_status_after_sale_date');
         }
 
-        if ((int)$this->quantity_available > 0 && (int)$this->quantity_remaining <= 0) {
+        if ((int) $this->quantity_available > 0 && (int) $this->quantity_remaining <= 0) {
             return config('attendize.ticket_status_sold_out');
         }
 

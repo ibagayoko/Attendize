@@ -8,7 +8,6 @@ Route::group(['prefix' => 'api', 'middleware' => 'auth:api'], function () {
      * ---------------
      */
 
-
     /*
      * ---------------
      * Events
@@ -16,14 +15,12 @@ Route::group(['prefix' => 'api', 'middleware' => 'auth:api'], function () {
      */
     Route::resource('events', 'API\EventsApiController');
 
-
     /*
      * ---------------
      * Attendees
      * ---------------
      */
     Route::resource('attendees', 'API\AttendeesApiController');
-
 
     /*
      * ---------------
@@ -42,6 +39,4 @@ Route::group(['prefix' => 'api', 'middleware' => 'auth:api'], function () {
      * Check-In / Check-Out
      * ---------------
      */
-
-
 });

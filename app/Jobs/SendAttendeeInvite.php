@@ -2,12 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Mailers\AttendeeMailer;
 use App\Models\Attendee;
+use App\Mailers\AttendeeMailer;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class SendAttendeeInvite extends Job implements ShouldQueue
 {

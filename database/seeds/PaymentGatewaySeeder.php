@@ -26,12 +26,11 @@ class PaymentGatewaySeeder extends Seeder
                 'provider_name' => 'PayPal Express',
                 'provider_url' => 'https://www.paypal.com',
                 'is_on_site' => 0,
-                'can_refund' => 0
+                'can_refund' => 0,
 
-            ]
+            ],
         ];
 
         DB::table('payment_gateways')->insert($payment_gateways);
-
     }
 }

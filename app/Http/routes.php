@@ -3,706 +3,694 @@
 Route::group(
     [
         'prefix' => LaravelLocalization::setLocale(),
-        'middleware' => [ 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath' ]
-    ], function() {
-    /*
-     * Include our API routes file
-     */
-    include_once('api_routes.php');
+        'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath'],
+    ], function () {
+        /*
+         * Include our API routes file
+         */
+        include_once 'api_routes.php';
 
-    /*
-     * -------------------------
-     * Installer
-     * -------------------------
-     */
-    Route::get('install', [
+        /*
+         * -------------------------
+         * Installer
+         * -------------------------
+         */
+        Route::get('install', [
         'as'   => 'showInstaller',
         'uses' => 'InstallerController@showInstaller',
     ]);
 
-    Route::post('install', [
+        Route::post('install', [
         'as'   => 'postInstaller',
         'uses' => 'InstallerController@postInstaller',
     ]);
 
-    /*
-     * Stripe connect return
-     */
-    Route::any('payment/return/stripe', [
+        /*
+         * Stripe connect return
+         */
+        Route::any('payment/return/stripe', [
         'as'   => 'showStripeReturn',
         'uses' => 'ManageAccountController@showStripeReturn',
     ]);
 
-    /*
-     * Logout
-     */
-    Route::any('/logout', [
+        /*
+         * Logout
+         */
+        Route::any('/logout', [
         'uses' => 'UserLogoutController@doLogout',
         'as'   => 'logout',
     ]);
 
-    Route::group(['middleware' => ['installed']], function () {
+        Route::group(['middleware' => ['installed']], function () {
 
         /*
          * Login
          */
-        Route::get('/login', [
+            Route::get('/login', [
             'as'   => 'login',
             'uses' => 'UserLoginController@showLogin',
         ]);
-        Route::post('/login', 'UserLoginController@postLogin');
+            Route::post('/login', 'UserLoginController@postLogin');
 
-        /*
-         * Forgot password
-         */
-        Route::get('login/forgot-password', [
+            /*
+             * Forgot password
+             */
+            Route::get('login/forgot-password', [
             'as'   => 'forgotPassword',
             'uses' => 'RemindersController@getRemind',
         ]);
 
-        Route::post('login/forgot-password', [
+            Route::post('login/forgot-password', [
             'as'   => 'postForgotPassword',
             'uses' => 'RemindersController@postRemind',
         ]);
 
-        /*
-         * Reset Password
-         */
-        Route::get('login/reset-password/{token}', [
+            /*
+             * Reset Password
+             */
+            Route::get('login/reset-password/{token}', [
             'uses' => 'RemindersController@getReset',
         ])->name('password.reset');
 
-        Route::post('login/reset-password', [
+            Route::post('login/reset-password', [
             'as'   => 'postResetPassword',
             'uses' => 'RemindersController@postReset',
         ]);
 
-        /*
-         * Registration / Account creation
-         */
-        Route::get('/signup', [
+            /*
+             * Registration / Account creation
+             */
+            Route::get('/signup', [
             'uses' => 'UserSignupController@showSignup',
             'as'   => 'showSignup',
         ]);
-        Route::post('/signup', 'UserSignupController@postSignup');
+            Route::post('/signup', 'UserSignupController@postSignup');
 
-        /*
-         * Confirm Email
-         */
-        Route::get('signup/confirm_email/{confirmation_code}', [
+            /*
+             * Confirm Email
+             */
+            Route::get('signup/confirm_email/{confirmation_code}', [
             'as'   => 'confirmEmail',
             'uses' => 'UserSignupController@confirmEmail',
         ]);
-    });
+        });
 
-    /*
-     * Public organiser page routes
-     */
-    Route::group(['prefix' => 'o'], function () {
-
-        Route::get('/{organiser_id}/{organier_slug?}', [
+        /*
+         * Public organiser page routes
+         */
+        Route::group(['prefix' => 'o'], function () {
+            Route::get('/{organiser_id}/{organier_slug?}', [
             'as'   => 'showOrganiserHome',
             'uses' => 'OrganiserViewController@showOrganiserHome',
         ]);
+        });
 
-    });
-
-    /*
-     * Public event page routes
-     */
-    Route::group(['prefix' => 'e'], function () {
+        /*
+         * Public event page routes
+         */
+        Route::group(['prefix' => 'e'], function () {
 
         /*
          * Embedded events
          */
-        Route::get('/{event_id}/embed', [
+            Route::get('/{event_id}/embed', [
             'as'   => 'showEmbeddedEventPage',
             'uses' => 'EventViewEmbeddedController@showEmbeddedEvent',
         ]);
 
-        Route::get('/{event_id}/calendar.ics', [
+            Route::get('/{event_id}/calendar.ics', [
             'as'   => 'downloadCalendarIcs',
             'uses' => 'EventViewController@showCalendarIcs',
         ]);
 
-        Route::get('/{event_id}/{event_slug?}', [
+            Route::get('/{event_id}/{event_slug?}', [
             'as'   => 'showEventPage',
             'uses' => 'EventViewController@showEventHome',
         ]);
 
-        Route::post('/{event_id}/contact_organiser', [
+            Route::post('/{event_id}/contact_organiser', [
             'as'   => 'postContactOrganiser',
             'uses' => 'EventViewController@postContactOrganiser',
         ]);
 
-        Route::post('/{event_id}/show_hidden', [
+            Route::post('/{event_id}/show_hidden', [
             'as'   => 'postShowHiddenTickets',
             'uses' => 'EventViewController@postShowHiddenTickets',
         ]);
 
-        /*
-         * Used for previewing designs in the backend. Doesn't log page views etc.
-         */
-        Route::get('/{event_id}/preview', [
+            /*
+             * Used for previewing designs in the backend. Doesn't log page views etc.
+             */
+            Route::get('/{event_id}/preview', [
             'as'   => 'showEventPagePreview',
             'uses' => 'EventViewController@showEventHomePreview',
         ]);
 
-        Route::post('{event_id}/checkout/', [
+            Route::post('{event_id}/checkout/', [
             'as'   => 'postValidateTickets',
             'uses' => 'EventCheckoutController@postValidateTickets',
         ]);
 
-        Route::get('{event_id}/checkout/create', [
+            Route::get('{event_id}/checkout/create', [
             'as'   => 'showEventCheckout',
             'uses' => 'EventCheckoutController@showEventCheckout',
         ]);
 
-        Route::get('{event_id}/checkout/success', [
+            Route::get('{event_id}/checkout/success', [
             'as'   => 'showEventCheckoutPaymentReturn',
             'uses' => 'EventCheckoutController@showEventCheckoutPaymentReturn',
         ]);
 
-
-        Route::post('{event_id}/checkout/create', [
+            Route::post('{event_id}/checkout/create', [
             'as'   => 'postCreateOrder',
             'uses' => 'EventCheckoutController@postCreateOrder',
         ]);
-    });
+        });
 
-    /*
-     * Public view order routes
-     */
-    Route::get('order/{order_reference}', [
+        /*
+         * Public view order routes
+         */
+        Route::get('order/{order_reference}', [
         'as'   => 'showOrderDetails',
         'uses' => 'EventCheckoutController@showOrderDetails',
     ]);
 
-    Route::get('order/{order_reference}/tickets', [
+        Route::get('order/{order_reference}/tickets', [
         'as'   => 'showOrderTickets',
         'uses' => 'EventCheckoutController@showOrderTickets',
     ]);
 
-    /*
-     * Backend routes
-     */
-    Route::group(['middleware' => ['auth', 'first.run']], function () {
+        /*
+         * Backend routes
+         */
+        Route::group(['middleware' => ['auth', 'first.run']], function () {
 
         /*
          * Edit User
          */
-        Route::group(['prefix' => 'user'], function () {
-
-            Route::get('/', [
+            Route::group(['prefix' => 'user'], function () {
+                Route::get('/', [
                 'as'   => 'showEditUser',
                 'uses' => 'UserController@showEditUser',
             ]);
-            Route::post('/', [
+                Route::post('/', [
                 'as'   => 'postEditUser',
                 'uses' => 'UserController@postEditUser',
             ]);
+            });
 
-        });
-
-        /*
-         * Manage account
-         */
-        Route::group(['prefix' => 'account'], function () {
-
-            Route::get('/', [
+            /*
+             * Manage account
+             */
+            Route::group(['prefix' => 'account'], function () {
+                Route::get('/', [
                 'as'   => 'showEditAccount',
                 'uses' => 'ManageAccountController@showEditAccount',
             ]);
 
-            Route::post('/', [
+                Route::post('/', [
                 'as'   => 'postEditAccount',
                 'uses' => 'ManageAccountController@postEditAccount',
             ]);
-            Route::post('/edit_payment', [
+                Route::post('/edit_payment', [
                 'as'   => 'postEditAccountPayment',
                 'uses' => 'ManageAccountController@postEditAccountPayment',
             ]);
 
-            Route::post('invite_user', [
+                Route::post('invite_user', [
                 'as'   => 'postInviteUser',
                 'uses' => 'ManageAccountController@postInviteUser',
             ]);
+            });
 
-        });
-
-        Route::get('select_organiser', [
+            Route::get('select_organiser', [
             'as'   => 'showSelectOrganiser',
             'uses' => 'OrganiserController@showSelectOrganiser',
         ]);
 
-        /*
-         * Organiser routes
-         */
-        Route::group(['prefix' => 'organiser'], function () {
-
-            Route::get('{organiser_id}/dashboard', [
+            /*
+             * Organiser routes
+             */
+            Route::group(['prefix' => 'organiser'], function () {
+                Route::get('{organiser_id}/dashboard', [
                 'as'   => 'showOrganiserDashboard',
                 'uses' => 'OrganiserDashboardController@showDashboard',
             ]);
-            Route::get('{organiser_id}/events', [
+                Route::get('{organiser_id}/events', [
                 'as'   => 'showOrganiserEvents',
                 'uses' => 'OrganiserEventsController@showEvents',
             ]);
 
-            Route::get('{organiser_id}/customize', [
+                Route::get('{organiser_id}/customize', [
                 'as'   => 'showOrganiserCustomize',
                 'uses' => 'OrganiserCustomizeController@showCustomize',
             ]);
-            Route::post('{organiser_id}/customize', [
+                Route::post('{organiser_id}/customize', [
                 'as'   => 'postEditOrganiser',
                 'uses' => 'OrganiserCustomizeController@postEditOrganiser',
             ]);
 
-            Route::get('create', [
+                Route::get('create', [
                 'as'   => 'showCreateOrganiser',
                 'uses' => 'OrganiserController@showCreateOrganiser',
             ]);
-            Route::post('create', [
+                Route::post('create', [
                 'as'   => 'postCreateOrganiser',
                 'uses' => 'OrganiserController@postCreateOrganiser',
             ]);
 
-            Route::post('{organiser_id}/page_design', [
+                Route::post('{organiser_id}/page_design', [
                 'as'   => 'postEditOrganiserPageDesign',
-                'uses' => 'OrganiserCustomizeController@postEditOrganiserPageDesign'
+                'uses' => 'OrganiserCustomizeController@postEditOrganiserPageDesign',
             ]);
-        });
+            });
 
-        /*
-         * Events dashboard
-         */
-        Route::group(['prefix' => 'events'], function () {
+            /*
+             * Events dashboard
+             */
+            Route::group(['prefix' => 'events'], function () {
 
             /*
              * ----------
              * Create Event
              * ----------
              */
-            Route::get('/create', [
+                Route::get('/create', [
                 'as'   => 'showCreateEvent',
                 'uses' => 'EventController@showCreateEvent',
             ]);
 
-            Route::post('/create', [
+                Route::post('/create', [
                 'as'   => 'postCreateEvent',
                 'uses' => 'EventController@postCreateEvent',
             ]);
-        });
+            });
 
-        /*
-         * Upload event images
-         */
-        Route::post('/upload_image', [
+            /*
+             * Upload event images
+             */
+            Route::post('/upload_image', [
             'as'   => 'postUploadEventImage',
             'uses' => 'EventController@postUploadEventImage',
         ]);
 
-        /*
-         * Event management routes
-         */
-        Route::group(['prefix' => 'event'], function () {
+            /*
+             * Event management routes
+             */
+            Route::group(['prefix' => 'event'], function () {
 
             /*
              * Dashboard
              */
-            Route::get('{event_id}/dashboard/', [
+                Route::get('{event_id}/dashboard/', [
                     'as'   => 'showEventDashboard',
                     'uses' => 'EventDashboardController@showDashboard',
                 ]
             );
 
-            Route::get('{event_id}/', [
+                Route::get('{event_id}/', [
                     'uses' => 'EventDashboardController@redirectToDashboard',
                 ]
             );
 
-            /*
-             * @todo Move to a controller
-             */
-             Route::get('{event_id}/go_live', [
+                /*
+                 * @todo Move to a controller
+                 */
+                Route::get('{event_id}/go_live', [
                 'as'   => 'MakeEventLive',
                 'uses' => 'EventController@makeEventLive',
             ]);
 
-            /*
-             * -------
-             * Tickets
-             * -------
-             */
-            Route::get('{event_id}/tickets/', [
+                /*
+                 * -------
+                 * Tickets
+                 * -------
+                 */
+                Route::get('{event_id}/tickets/', [
                 'as'   => 'showEventTickets',
                 'uses' => 'EventTicketsController@showTickets',
             ]);
-            Route::get('{event_id}/tickets/edit/{ticket_id}', [
+                Route::get('{event_id}/tickets/edit/{ticket_id}', [
                 'as'   => 'showEditTicket',
                 'uses' => 'EventTicketsController@showEditTicket',
             ]);
-            Route::post('{event_id}/tickets/edit/{ticket_id}', [
+                Route::post('{event_id}/tickets/edit/{ticket_id}', [
                 'as'   => 'postEditTicket',
                 'uses' => 'EventTicketsController@postEditTicket',
             ]);
-            Route::get('{event_id}/tickets/create', [
+                Route::get('{event_id}/tickets/create', [
                 'as'   => 'showCreateTicket',
                 'uses' => 'EventTicketsController@showCreateTicket',
             ]);
-            Route::post('{event_id}/tickets/create', [
+                Route::post('{event_id}/tickets/create', [
                 'as'   => 'postCreateTicket',
                 'uses' => 'EventTicketsController@postCreateTicket',
             ]);
-            Route::post('{event_id}/tickets/delete', [
+                Route::post('{event_id}/tickets/delete', [
                 'as'   => 'postDeleteTicket',
                 'uses' => 'EventTicketsController@postDeleteTicket',
             ]);
-            Route::post('{event_id}/tickets/pause', [
+                Route::post('{event_id}/tickets/pause', [
                 'as'   => 'postPauseTicket',
                 'uses' => 'EventTicketsController@postPauseTicket',
             ]);
-            Route::post('{event_id}/tickets/order', [
+                Route::post('{event_id}/tickets/order', [
                 'as'   => 'postUpdateTicketsOrder',
                 'uses' => 'EventTicketsController@postUpdateTicketsOrder',
             ]);
 
-            /*
-             * -------
-             * Attendees
-             * -------
-             */
-            Route::get('{event_id}/attendees/', [
+                /*
+                 * -------
+                 * Attendees
+                 * -------
+                 */
+                Route::get('{event_id}/attendees/', [
                 'as'   => 'showEventAttendees',
                 'uses' => 'EventAttendeesController@showAttendees',
             ]);
 
-            Route::get('{event_id}/attendees/message', [
+                Route::get('{event_id}/attendees/message', [
                 'as'   => 'showMessageAttendees',
                 'uses' => 'EventAttendeesController@showMessageAttendees',
             ]);
 
-            Route::post('{event_id}/attendees/message', [
+                Route::post('{event_id}/attendees/message', [
                 'as'   => 'postMessageAttendees',
                 'uses' => 'EventAttendeesController@postMessageAttendees',
             ]);
 
-            Route::get('{event_id}/attendees/single_message', [
+                Route::get('{event_id}/attendees/single_message', [
                 'as'   => 'showMessageAttendee',
                 'uses' => 'EventAttendeesController@showMessageAttendee',
             ]);
 
-            Route::post('{event_id}/attendees/single_message', [
+                Route::post('{event_id}/attendees/single_message', [
                 'as'   => 'postMessageAttendee',
                 'uses' => 'EventAttendeesController@postMessageAttendee',
             ]);
 
-            Route::get('{event_id}/attendees/resend_ticket', [
+                Route::get('{event_id}/attendees/resend_ticket', [
                 'as'   => 'showResendTicketToAttendee',
                 'uses' => 'EventAttendeesController@showResendTicketToAttendee',
             ]);
 
-            Route::post('{event_id}/attendees/resend_ticket', [
+                Route::post('{event_id}/attendees/resend_ticket', [
                 'as'   => 'postResendTicketToAttendee',
                 'uses' => 'EventAttendeesController@postResendTicketToAttendee',
             ]);
 
-            Route::get('{event_id}/attendees/invite', [
+                Route::get('{event_id}/attendees/invite', [
                 'as'   => 'showInviteAttendee',
                 'uses' => 'EventAttendeesController@showInviteAttendee',
             ]);
 
-            Route::post('{event_id}/attendees/invite', [
+                Route::post('{event_id}/attendees/invite', [
                 'as'   => 'postInviteAttendee',
                 'uses' => 'EventAttendeesController@postInviteAttendee',
             ]);
 
-            Route::get('{event_id}/attendees/import', [
+                Route::get('{event_id}/attendees/import', [
                 'as'   => 'showImportAttendee',
                 'uses' => 'EventAttendeesController@showImportAttendee',
             ]);
 
-            Route::post('{event_id}/attendees/import', [
+                Route::post('{event_id}/attendees/import', [
                 'as'   => 'postImportAttendee',
                 'uses' => 'EventAttendeesController@postImportAttendee',
             ]);
 
-            Route::get('{event_id}/attendees/print', [
+                Route::get('{event_id}/attendees/print', [
                 'as'   => 'showPrintAttendees',
                 'uses' => 'EventAttendeesController@showPrintAttendees',
             ]);
 
-            Route::get('{event_id}/attendees/{attendee_id}/export_ticket', [
+                Route::get('{event_id}/attendees/{attendee_id}/export_ticket', [
                 'as'   => 'showExportTicket',
                 'uses' => 'EventAttendeesController@showExportTicket',
             ]);
 
-            Route::get('{event_id}/attendees/{attendee_id}/ticket', [
+                Route::get('{event_id}/attendees/{attendee_id}/ticket', [
                 'as'   => 'showAttendeeTicket',
                 'uses' => 'EventAttendeesController@showAttendeeTicket',
             ]);
 
-            Route::get('{event_id}/attendees/export/{export_as?}', [
+                Route::get('{event_id}/attendees/export/{export_as?}', [
                 'as'   => 'showExportAttendees',
                 'uses' => 'EventAttendeesController@showExportAttendees',
             ]);
 
-            Route::get('{event_id}/attendees/{attendee_id}/edit', [
+                Route::get('{event_id}/attendees/{attendee_id}/edit', [
                 'as'   => 'showEditAttendee',
                 'uses' => 'EventAttendeesController@showEditAttendee',
             ]);
-            Route::post('{event_id}/attendees/{attendee_id}/edit', [
+                Route::post('{event_id}/attendees/{attendee_id}/edit', [
                 'as'   => 'postEditAttendee',
                 'uses' => 'EventAttendeesController@postEditAttendee',
             ]);
 
-            Route::get('{event_id}/attendees/{attendee_id}/cancel', [
+                Route::get('{event_id}/attendees/{attendee_id}/cancel', [
                 'as'   => 'showCancelAttendee',
                 'uses' => 'EventAttendeesController@showCancelAttendee',
             ]);
-            Route::post('{event_id}/attendees/{attendee_id}/cancel', [
+                Route::post('{event_id}/attendees/{attendee_id}/cancel', [
                 'as'   => 'postCancelAttendee',
                 'uses' => 'EventAttendeesController@postCancelAttendee',
             ]);
 
-            /*
-             * -------
-             * Orders
-             * -------
-             */
-            Route::get('{event_id}/orders/', [
+                /*
+                 * -------
+                 * Orders
+                 * -------
+                 */
+                Route::get('{event_id}/orders/', [
                 'as'   => 'showEventOrders',
                 'uses' => 'EventOrdersController@showOrders',
             ]);
 
-            Route::get('order/{order_id}', [
+                Route::get('order/{order_id}', [
                 'as'   => 'showManageOrder',
                 'uses' => 'EventOrdersController@manageOrder',
             ]);
 
-            Route::post('order/{order_id}/resend', [
+                Route::post('order/{order_id}/resend', [
                 'as' => 'resendOrder',
                 'uses' => 'EventOrdersController@resendOrder',
             ]);
 
-            Route::get('order/{order_id}/show/edit', [
+                Route::get('order/{order_id}/show/edit', [
                 'as' => 'showEditOrder',
                 'uses' => 'EventOrdersController@showEditOrder',
             ]);
 
-            Route::post('order/{order_id}/edit', [
+                Route::post('order/{order_id}/edit', [
                 'as' => 'postOrderEdit',
                 'uses' => 'EventOrdersController@postEditOrder',
             ]);
 
-            Route::get('order/{order_id}/cancel', [
+                Route::get('order/{order_id}/cancel', [
                 'as'   => 'showCancelOrder',
                 'uses' => 'EventOrdersController@showCancelOrder',
             ]);
 
-            Route::post('order/{order_id}/cancel', [
+                Route::post('order/{order_id}/cancel', [
                 'as'   => 'postCancelOrder',
                 'uses' => 'EventOrdersController@postCancelOrder',
             ]);
 
-            Route::post('order/{order_id}/mark_payment_received', [
+                Route::post('order/{order_id}/mark_payment_received', [
                 'as'   => 'postMarkPaymentReceived',
                 'uses' => 'EventOrdersController@postMarkPaymentReceived',
             ]);
 
-            Route::get('{event_id}/orders/export/{export_as?}', [
+                Route::get('{event_id}/orders/export/{export_as?}', [
                 'as'   => 'showExportOrders',
                 'uses' => 'EventOrdersController@showExportOrders',
             ]);
-            Route::get('{event_id}/orders/message', [
+                Route::get('{event_id}/orders/message', [
                 'as'   => 'showMessageOrder',
                 'uses' => 'EventOrdersController@showMessageOrder',
             ]);
 
-            Route::post('{event_id}/orders/message', [
+                Route::post('{event_id}/orders/message', [
                 'as'   => 'postMessageOrder',
                 'uses' => 'EventOrdersController@postMessageOrder',
             ]);
 
-            /*
-             * -------
-             * Edit Event
-             * -------
-             */
-            Route::post('{event_id}/customize', [
+                /*
+                 * -------
+                 * Edit Event
+                 * -------
+                 */
+                Route::post('{event_id}/customize', [
                 'as'   => 'postEditEvent',
                 'uses' => 'EventController@postEditEvent',
             ]);
 
-            /*
-             * -------
-             * Customize Design etc.
-             * -------
-             */
-            Route::get('{event_id}/customize', [
+                /*
+                 * -------
+                 * Customize Design etc.
+                 * -------
+                 */
+                Route::get('{event_id}/customize', [
                 'as'   => 'showEventCustomize',
                 'uses' => 'EventCustomizeController@showCustomize',
             ]);
-            Route::get('{event_id}/customize/{tab?}', [
+                Route::get('{event_id}/customize/{tab?}', [
                 'as'   => 'showEventCustomizeTab',
                 'uses' => 'EventCustomizeController@showCustomize',
             ]);
-            Route::post('{event_id}/customize/order_page', [
+                Route::post('{event_id}/customize/order_page', [
                 'as'   => 'postEditEventOrderPage',
                 'uses' => 'EventCustomizeController@postEditEventOrderPage',
             ]);
-            Route::post('{event_id}/customize/design', [
+                Route::post('{event_id}/customize/design', [
                 'as'   => 'postEditEventDesign',
                 'uses' => 'EventCustomizeController@postEditEventDesign',
             ]);
-            Route::post('{event_id}/customize/ticket_design', [
+                Route::post('{event_id}/customize/ticket_design', [
                 'as'   => 'postEditEventTicketDesign',
                 'uses' => 'EventCustomizeController@postEditEventTicketDesign',
             ]);
-            Route::post('{event_id}/customize/social', [
+                Route::post('{event_id}/customize/social', [
                 'as'   => 'postEditEventSocial',
                 'uses' => 'EventCustomizeController@postEditEventSocial',
             ]);
-            Route::post('{event_id}/customize/fees', [
+                Route::post('{event_id}/customize/fees', [
                 'as'   => 'postEditEventFees',
                 'uses' => 'EventCustomizeController@postEditEventFees',
             ]);
 
-            /*
-             * -------
-             * Event Widget page
-             * -------
-             */
-            Route::get('{event_id}/widgets', [
+                /*
+                 * -------
+                 * Event Widget page
+                 * -------
+                 */
+                Route::get('{event_id}/widgets', [
                 'as'   => 'showEventWidgets',
                 'uses' => 'EventWidgetsController@showEventWidgets',
             ]);
 
-            /*
-             * -------
-             * Event Access Codes page
-             * -------
-             */
-            Route::get('{event_id}/access_codes', [
+                /*
+                 * -------
+                 * Event Access Codes page
+                 * -------
+                 */
+                Route::get('{event_id}/access_codes', [
                 'as'   => 'showEventAccessCodes',
                 'uses' => 'EventAccessCodesController@show',
             ]);
 
-            Route::get('{event_id}/access_codes/create', [
+                Route::get('{event_id}/access_codes/create', [
                 'as' => 'showCreateEventAccessCode',
                 'uses' => 'EventAccessCodesController@showCreate',
             ]);
 
-            Route::post('{event_id}/access_codes/create', [
+                Route::post('{event_id}/access_codes/create', [
                 'as' => 'postCreateEventAccessCode',
                 'uses' => 'EventAccessCodesController@postCreate',
             ]);
 
-            Route::post('{event_id}/access_codes/{access_code_id}/delete', [
+                Route::post('{event_id}/access_codes/{access_code_id}/delete', [
                 'as' => 'postDeleteEventAccessCode',
                 'uses' => 'EventAccessCodesController@postDelete',
             ]);
 
-            /*
-             * -------
-             * Event Survey page
-             * -------
-             */
-            Route::get('{event_id}/surveys', [
+                /*
+                 * -------
+                 * Event Survey page
+                 * -------
+                 */
+                Route::get('{event_id}/surveys', [
                 'as'   => 'showEventSurveys',
                 'uses' => 'EventSurveyController@showEventSurveys',
             ]);
-            Route::get('{event_id}/question/create', [
+                Route::get('{event_id}/question/create', [
                 'as'   => 'showCreateEventQuestion',
-                'uses' => 'EventSurveyController@showCreateEventQuestion'
+                'uses' => 'EventSurveyController@showCreateEventQuestion',
             ]);
 
-            Route::post('{event_id}/question/create', [
+                Route::post('{event_id}/question/create', [
                 'as'   => 'postCreateEventQuestion',
-                'uses' => 'EventSurveyController@postCreateEventQuestion'
+                'uses' => 'EventSurveyController@postCreateEventQuestion',
             ]);
 
-
-            Route::get('{event_id}/question/{question_id}', [
+                Route::get('{event_id}/question/{question_id}', [
                 'as'   => 'showEditEventQuestion',
-                'uses' => 'EventSurveyController@showEditEventQuestion'
+                'uses' => 'EventSurveyController@showEditEventQuestion',
             ]);
 
-            Route::post('{event_id}/question/{question_id}', [
+                Route::post('{event_id}/question/{question_id}', [
                 'as'   => 'postEditEventQuestion',
-                'uses' => 'EventSurveyController@postEditEventQuestion'
+                'uses' => 'EventSurveyController@postEditEventQuestion',
             ]);
 
-            Route::post('{event_id}/question/delete/{question_id}', [
+                Route::post('{event_id}/question/delete/{question_id}', [
                 'as'   => 'postDeleteEventQuestion',
-                'uses' => 'EventSurveyController@postDeleteEventQuestion'
+                'uses' => 'EventSurveyController@postDeleteEventQuestion',
             ]);
 
-            Route::get('{event_id}/question/{question_id}/answers', [
+                Route::get('{event_id}/question/{question_id}/answers', [
                 'as'   => 'showEventQuestionAnswers',
                 'uses' => 'EventSurveyController@showEventQuestionAnswers',
             ]);
 
-            Route::post('{event_id}/questions/update_order', [
+                Route::post('{event_id}/questions/update_order', [
                 'as'   => 'postUpdateQuestionsOrder',
-                'uses' => 'EventSurveyController@postUpdateQuestionsOrder'
+                'uses' => 'EventSurveyController@postUpdateQuestionsOrder',
             ]);
 
-            Route::get('{event_id}/answers/export/{export_as?}', [
+                Route::get('{event_id}/answers/export/{export_as?}', [
                 'as'   => 'showExportAnswers',
                 'uses' => 'EventSurveyController@showExportAnswers',
             ]);
 
-            Route::post('{event_id}/question/{question_id}/enable', [
+                Route::post('{event_id}/question/{question_id}/enable', [
                 'as'   => 'postEnableQuestion',
                 'uses' => 'EventSurveyController@postEnableQuestion',
             ]);
 
-
-            /*
-             * -------
-             * Check In App
-             * -------
-             */
-            Route::get('{event_id}/check_in', [
+                /*
+                 * -------
+                 * Check In App
+                 * -------
+                 */
+                Route::get('{event_id}/check_in', [
                 'as'   => 'showCheckIn',
                 'uses' => 'EventCheckInController@showCheckIn',
             ]);
-            Route::post('{event_id}/check_in/search', [
+                Route::post('{event_id}/check_in/search', [
                 'as'   => 'postCheckInSearch',
                 'uses' => 'EventCheckInController@postCheckInSearch',
             ]);
-            Route::post('{event_id}/check_in/', [
+                Route::post('{event_id}/check_in/', [
                 'as'   => 'postCheckInAttendee',
                 'uses' => 'EventCheckInController@postCheckInAttendee',
             ]);
 
-            Route::post('{event_id}/qrcode_check_in', [
+                Route::post('{event_id}/qrcode_check_in', [
                 'as'   => 'postQRCodeCheckInAttendee',
                 'uses' => 'EventCheckInController@postCheckInAttendeeQr',
             ]);
 
-            Route::post('{event_id}/confirm_order_tickets/{order_id}', [
+                Route::post('{event_id}/confirm_order_tickets/{order_id}', [
                 'as'   => 'confirmCheckInOrderTickets',
                 'uses' => 'EventCheckInController@confirmOrderTicketsQr',
             ]);
 
-
-            /*
-             * -------
-             * Promote
-             * -------
-             */
-            Route::get('{event_id}/promote', [
+                /*
+                 * -------
+                 * Promote
+                 * -------
+                 */
+                Route::get('{event_id}/promote', [
                 'as'   => 'showEventPromote',
                 'uses' => 'EventPromoteController@showPromote',
             ]);
+            });
         });
-    });
 
-    Route::get('/', [
+        Route::get('/', [
         'as'   => 'index',
         'uses' => 'IndexController@showIndex',
     ]);
-});
-
+    });

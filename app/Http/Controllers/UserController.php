@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use Auth;
 use Hash;
-use Illuminate\Http\Request;
 use Validator;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     /**
-     * Show the edit user modal
+     * Show the edit user modal.
      *
      * @return \Illuminate\Contracts\View\View
      */
@@ -24,7 +24,7 @@ class UserController extends Controller
     }
 
     /**
-     * Updates the current user
+     * Updates the current user.
      *
      * @param Request $request
      * @return mixed
@@ -35,7 +35,7 @@ class UserController extends Controller
             'email'        => [
                 'required',
                 'email',
-                'unique:users,email,' . Auth::user()->id . ',id,account_id,' . Auth::user()->account_id
+                'unique:users,email,'.Auth::user()->id.',id,account_id,'.Auth::user()->account_id,
             ],
             'password'     => 'passcheck',
             'new_password' => ['min:8', 'confirmed', 'required_with:password'],
@@ -44,12 +44,12 @@ class UserController extends Controller
         ];
 
         $messages = [
-            'email.email'         => trans("Controllers.error.email.email"),
-            'email.required'      => trans("Controllers.error.email.required"),
-            'password.passcheck'  => trans("Controllers.error.password.passcheck"),
-            'email.unique'        => trans("Controllers.error.email.unique"),
-            'first_name.required' => trans("Controllers.error.first_name.required"),
-            'last_name.required'  => trans("Controllers.error.last_name.required"),
+            'email.email'         => trans('Controllers.error.email.email'),
+            'email.required'      => trans('Controllers.error.email.required'),
+            'password.passcheck'  => trans('Controllers.error.password.passcheck'),
+            'email.unique'        => trans('Controllers.error.email.unique'),
+            'first_name.required' => trans('Controllers.error.first_name.required'),
+            'last_name.required'  => trans('Controllers.error.last_name.required'),
         ];
 
         $validation = Validator::make($request->all(), $rules, $messages);
@@ -75,7 +75,7 @@ class UserController extends Controller
 
         return response()->json([
             'status'  => 'success',
-            'message' => trans("Controllers.successfully_saved_details"),
+            'message' => trans('Controllers.successfully_saved_details'),
         ]);
     }
 }

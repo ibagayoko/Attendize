@@ -66,7 +66,6 @@ class CreateUsersTable extends Migration
             $table->nullableTimestamps();
         });
 
-
         /*
          * Accounts table
          */
@@ -119,7 +118,6 @@ class CreateUsersTable extends Migration
          * Users Table
          */
         Schema::create('users', function ($t) {
-
             $t->increments('id');
             $t->unsignedInteger('account_id')->index();
             $t->nullableTimestamps();
@@ -140,7 +138,6 @@ class CreateUsersTable extends Migration
         });
 
         Schema::create('organisers', function ($table) {
-
             $table->increments('id')->index();
 
             $table->nullableTimestamps();
@@ -161,11 +158,8 @@ class CreateUsersTable extends Migration
             $table->string('google_tag_manager_code', 20)->nullable();
             $table->boolean('enable_organiser_page')->default(true);
 
-
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
         });
-
-
 
         Schema::create('events', function ($t) {
             $t->increments('id');
@@ -217,7 +211,7 @@ class CreateUsersTable extends Migration
             $t->text('pre_order_display_message')->nullable();
 
             $t->text('post_order_display_message')->nullable();
-            
+
             $t->boolean('enable_offline_payments')->default(0);
             $t->text('offline_payment_instructions')->nullable();
 
@@ -229,11 +223,10 @@ class CreateUsersTable extends Migration
             $t->boolean('social_show_googleplus')->default(true);
             $t->boolean('social_show_whatsapp')->default(true);
 
-
             $t->unsignedInteger('location_is_manual')->default(0);
 
             $t->boolean('is_live')->default(false);
-                /*
+            /*
              * @see https://github.com/milon/barcode
              *  AddTicketDesignOptions
              */
@@ -243,7 +236,6 @@ class CreateUsersTable extends Migration
             $t->string('ticket_text_color', 20)->default('#000000');
             $t->string('ticket_sub_text_color', 20)->default('#999999');
             $t->string('google_tag_manager_code', 20)->nullable();
-
 
             $t->nullableTimestamps();
             $t->softDeletes();
@@ -293,9 +285,8 @@ class CreateUsersTable extends Migration
          * Tickets table
          */
         Schema::create('tickets', function ($t) {
-
             $t->increments('id');
-                        $t->nullableTimestamps();
+            $t->nullableTimestamps();
             $t->softDeletes();
 
             $t->unsignedInteger('edited_by_user_id')->nullable();
@@ -431,7 +422,6 @@ class CreateUsersTable extends Migration
             $t->foreign('ticket_id')->references('id')->on('users')->onDelete('cascade');
         });
 
-
         /*
          * Tickets / Questions pivot table
          */
@@ -504,7 +494,6 @@ class CreateUsersTable extends Migration
         });
 
         Schema::create('event_images', function ($t) {
-
             $t->increments('id');
             $t->string('image_path');
             $t->nullableTimestamps();
@@ -551,11 +540,10 @@ class CreateUsersTable extends Migration
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             Schema::drop($table);
         }
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
     }
 }

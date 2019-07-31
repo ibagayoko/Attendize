@@ -2,12 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Mailers\OrderMailer;
-use App\Models\Order;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Log;
+use App\Models\Order;
+use App\Mailers\OrderMailer;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class SendOrderNotification extends Job implements ShouldQueue
 {
@@ -34,13 +34,11 @@ class SendOrderNotification extends Job implements ShouldQueue
     {
         try {
             $orderMailer->sendOrderNotification($this->order);
-        } catch(\Exception $e) {
-            Log::error("Cannot send actual ticket to : " . $this->order->email . " as ticket file does not exist on disk");
-            Log::error("Error message. " . $e->getMessage());
-            Log::error("Error stack trace" . $e->getTraceAsString());
+        } catch (\Exception $e) {
+            Log::error('Cannot send actual ticket to : '.$this->order->email.' as ticket file does not exist on disk');
+            Log::error('Error message. '.$e->getMessage());
+            Log::error('Error stack trace'.$e->getTraceAsString());
             $this->fail($e);
         }
-
-
     }
 }

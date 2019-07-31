@@ -1,6 +1,6 @@
 <?php
 
-return array(
+return [
     'access_codes'               => 'Access Codes',
     'attendee_ref'               => 'Attendee Ref.',
     'coupon_codes'               => 'Coupon Codes',
@@ -48,4 +48,4 @@ return array(
     'ticket_text_color'          => 'Ticket Text Color',
     'ticket_type'                => 'Ticket Type',
     'venue'                      => 'Venue',
-);
+];

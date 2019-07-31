@@ -1,8 +1,7 @@
 <?php
-namespace App\Models;
 
+namespace App\Models;
 
 class Country extends \Illuminate\Database\Eloquent\Model
 {
-
 }

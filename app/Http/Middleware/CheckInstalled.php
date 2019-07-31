@@ -2,10 +2,10 @@
 
 namespace app\Http\Middleware;
 
-use App\Attendize\Utils;
-use App\Models\Account;
 use Closure;
 use Redirect;
+use App\Models\Account;
+use App\Attendize\Utils;
 
 class CheckInstalled
 {
@@ -22,14 +22,14 @@ class CheckInstalled
         /*
          * Check if the 'installed' file has been created
          */
-        if (!file_exists(base_path('installed')) && !Utils::isAttendize()) {
+        if (! file_exists(base_path('installed')) && ! Utils::isAttendize()) {
             return Redirect::to('install');
         }
 
         /*
          * Redirect user to signup page if there are no accounts
          */
-        if (Account::count() === 0 && !$request->is('signup*')) {
+        if (Account::count() === 0 && ! $request->is('signup*')) {
             return redirect()->to('signup');
         }
 

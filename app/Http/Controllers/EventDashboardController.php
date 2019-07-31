@@ -12,7 +12,7 @@ use App\Models\EventStats;
 class EventDashboardController extends MyBaseController
 {
     /**
-     * Show the event dashboard
+     * Show the event dashboard.
      *
      * @param bool|false $event_id
      * @return \Illuminate\View\View
@@ -91,11 +91,12 @@ class EventDashboardController extends MyBaseController
     }
 
     /**
-     * Redirect to event dashboard
-     * @param  Integer|false $event_id
+     * Redirect to event dashboard.
+     * @param  int|false $event_id
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function redirectToDashboard($event_id = false) {
+    public function redirectToDashboard($event_id = false)
+    {
         return redirect()->action(
             'EventDashboardController@showDashboard', ['event_id' => $event_id]
         );

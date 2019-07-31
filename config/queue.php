@@ -57,7 +57,7 @@ return [
             'token' => '',
             'project' => '',
             'queue' => '',
-            'encrypt' => true
+            'encrypt' => true,
         ],
         'redis' => [
             'driver' => 'redis',

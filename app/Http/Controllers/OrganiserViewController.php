@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Attendize\Utils;
-use App\Models\Organiser;
 use Auth;
 use Carbon\Carbon;
+use App\Attendize\Utils;
+use App\Models\Organiser;
 use Illuminate\Http\Request;
 
 class OrganiserViewController extends Controller
 {
     /**
-     * Show the public organiser page
+     * Show the public organiser page.
      *
      * @param $organiser_id
      * @param string $slug
@@ -22,7 +22,7 @@ class OrganiserViewController extends Controller
     {
         $organiser = Organiser::findOrFail($organiser_id);
 
-        if (!$organiser->enable_organiser_page && !Utils::userOwns($organiser)) {
+        if (! $organiser->enable_organiser_page && ! Utils::userOwns($organiser)) {
             abort(404);
         }
 
@@ -53,7 +53,7 @@ class OrganiserViewController extends Controller
     }
 
     /**
-     * Show the backend preview of the organiser page
+     * Show the backend preview of the organiser page.
      *
      * @param $event_id
      * @return mixed

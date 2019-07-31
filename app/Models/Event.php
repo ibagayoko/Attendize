@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Str;
 use URL;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Event extends MyBaseModel
 {
@@ -21,6 +21,7 @@ class Event extends MyBaseModel
     public function rules()
     {
         $format = config('attendize.default_datetime_format');
+
         return [
                 'title'               => 'required',
                 'description'         => 'required',
@@ -36,7 +37,7 @@ class Event extends MyBaseModel
     /**
      * The validation error messages.
      *
-     * @var array $messages
+     * @var array
      */
     protected $messages = [
         'title.required'                       => 'You must at least give a title for your event.',
@@ -208,7 +209,7 @@ class Event extends MyBaseModel
     }
 
     /**
-     * Parse start_date to a Carbon instance
+     * Parse start_date to a Carbon instance.
      *
      * @param string $date DateTime
      */
@@ -219,8 +220,8 @@ class Event extends MyBaseModel
     }
 
     /**
-     * Format start date from user preferences
-     * @return String Formatted date
+     * Format start date from user preferences.
+     * @return string Formatted date
      */
     public function startDateFormatted()
     {
@@ -228,7 +229,7 @@ class Event extends MyBaseModel
     }
 
     /**
-     * Parse end_date to a Carbon instance
+     * Parse end_date to a Carbon instance.
      *
      * @param string $date DateTime
      */
@@ -239,8 +240,8 @@ class Event extends MyBaseModel
     }
 
     /**
-     * Format end date from user preferences
-     * @return String Formatted date
+     * Format end date from user preferences.
+     * @return string Formatted date
      */
     public function endDateFormatted()
     {
@@ -278,7 +279,7 @@ class Event extends MyBaseModel
     }
 
     /**
-     * Return an array of attendees and answers they gave to questions at checkout
+     * Return an array of attendees and answers they gave to questions at checkout.
      *
      * @return array
      */
@@ -288,7 +289,7 @@ class Event extends MyBaseModel
             'Order Ref',
             'Attendee Name',
             'Attendee Email',
-            'Attendee Ticket'
+            'Attendee Ticket',
         ], $this->questions->pluck('title')->toArray());
 
         $attendees = $this->attendees()->has('answers')->get();
@@ -308,7 +309,7 @@ class Event extends MyBaseModel
                 $attendee->order->order_reference,
                 $attendee->full_name,
                 $attendee->email,
-                $attendee->ticket->title
+                $attendee->ticket->title,
             ], $answers);
         }
 
@@ -323,23 +324,22 @@ class Event extends MyBaseModel
     public function getEmbedHtmlCodeAttribute()
     {
         return "<!--Attendize.com Ticketing Embed Code-->
-                <iframe style='overflow:hidden; min-height: 350px;' frameBorder='0' seamless='seamless' width='100%' height='100%' src='" . $this->embed_url . "' vspace='0' hspace='0' scrolling='auto' allowtransparency='true'></iframe>
+                <iframe style='overflow:hidden; min-height: 350px;' frameBorder='0' seamless='seamless' width='100%' height='100%' src='".$this->embed_url."' vspace='0' hspace='0' scrolling='auto' allowtransparency='true'></iframe>
                 <!--/Attendize.com Ticketing Embed Code-->";
     }
 
     /**
-     * Get a usable address for embedding Google Maps
-     *
+     * Get a usable address for embedding Google Maps.
      */
     public function getMapAddressAttribute()
     {
-        $string = $this->venue . ','
-            . $this->location_street_number . ','
-            . $this->location_address_line_1 . ','
-            . $this->location_address_line_2 . ','
-            . $this->location_state . ','
-            . $this->location_post_code . ','
-            . $this->location_country;
+        $string = $this->venue.','
+            .$this->location_street_number.','
+            .$this->location_address_line_1.','
+            .$this->location_address_line_2.','
+            .$this->location_state.','
+            .$this->location_post_code.','
+            .$this->location_country;
 
         return urlencode($string);
     }
@@ -351,7 +351,7 @@ class Event extends MyBaseModel
      */
     public function getBgImageUrlAttribute()
     {
-        return URL::to('/') . '/' . $this->bg_image_path;
+        return URL::to('/').'/'.$this->bg_image_path;
     }
 
     /**
@@ -361,7 +361,7 @@ class Event extends MyBaseModel
      */
     public function getEventUrlAttribute()
     {
-        return route("showEventPage", ["event_id"=>$this->id, "event_slug"=>Str::slug($this->title)]);
+        return route('showEventPage', ['event_id'=>$this->id, 'event_slug'=>Str::slug($this->title)]);
         //return URL::to('/') . '/e/' . $this->id . '/' . Str::slug($this->title);
     }
 
@@ -414,11 +414,11 @@ ICSTemplate;
     }
 
     /**
-     * @param integer $accessCodeId
+     * @param int $accessCodeId
      * @return bool
      */
     public function hasAccessCode($accessCodeId)
     {
-        return (is_null($this->access_codes()->where('id', $accessCodeId)->first()) === false);
+        return is_null($this->access_codes()->where('id', $accessCodeId)->first()) === false;
     }
 }

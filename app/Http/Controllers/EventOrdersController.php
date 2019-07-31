@@ -2,26 +2,24 @@
 
 namespace App\Http\Controllers;
 
-
-use App\Jobs\SendOrderTickets;
-use App\Models\Attendee;
-use App\Models\Event;
-use App\Models\EventStats;
-use App\Models\Order;
-use App\Services\Order as OrderService;
 use DB;
-use Excel;
-use Illuminate\Http\Request;
 use Log;
 use Mail;
+use Excel;
 use Omnipay;
 use Validator;
+use App\Models\Event;
+use App\Models\Order;
+use App\Models\Attendee;
+use App\Models\EventStats;
+use Illuminate\Http\Request;
+use App\Jobs\SendOrderTickets;
+use App\Services\Order as OrderService;
 
 class EventOrdersController extends MyBaseController
 {
-
     /**
-     * Show event orders page
+     * Show event orders page.
      *
      * @param Request $request
      * @param string $event_id
@@ -48,10 +46,10 @@ class EventOrdersController extends MyBaseController
 
             $orders = $event->orders()
                 ->where(function ($query) use ($searchQuery) {
-                    $query->where('order_reference', 'like', $searchQuery . '%')
-                        ->orWhere('first_name', 'like', $searchQuery . '%')
-                        ->orWhere('email', 'like', $searchQuery . '%')
-                        ->orWhere('last_name', 'like', $searchQuery . '%');
+                    $query->where('order_reference', 'like', $searchQuery.'%')
+                        ->orWhere('first_name', 'like', $searchQuery.'%')
+                        ->orWhere('email', 'like', $searchQuery.'%')
+                        ->orWhere('last_name', 'like', $searchQuery.'%');
                 })
                 ->orderBy($sort_by, $sort_order)
                 ->paginate();
@@ -71,7 +69,7 @@ class EventOrdersController extends MyBaseController
     }
 
     /**
-     * Shows  'Manage Order' modal
+     * Shows  'Manage Order' modal.
      *
      * @param Request $request
      * @param $order_id
@@ -86,14 +84,14 @@ class EventOrdersController extends MyBaseController
 
         $data = [
             'order' => $order,
-            'orderService' => $orderService
+            'orderService' => $orderService,
         ];
 
         return view('ManageEvent.Modals.ManageOrder', $data);
     }
 
     /**
-     * Shows 'Edit Order' modal
+     * Shows 'Edit Order' modal.
      *
      * @param Request $request
      * @param $order_id
@@ -114,7 +112,7 @@ class EventOrdersController extends MyBaseController
     }
 
     /**
-     * Shows 'Cancel Order' modal
+     * Shows 'Cancel Order' modal.
      *
      * @param Request $request
      * @param $order_id
@@ -135,7 +133,7 @@ class EventOrdersController extends MyBaseController
     }
 
     /**
-     * Resend an entire order
+     * Resend an entire order.
      *
      * @param $order_id
      *
@@ -154,7 +152,7 @@ class EventOrdersController extends MyBaseController
     }
 
     /**
-     * Cancels an order
+     * Cancels an order.
      *
      * @param Request $request
      * @param $order_id
@@ -185,8 +183,7 @@ class EventOrdersController extends MyBaseController
 
         $order->update();
 
-
-        \Session::flash('message', trans("Controllers.the_order_has_been_updated"));
+        \Session::flash('message', trans('Controllers.the_order_has_been_updated'));
 
         return response()->json([
             'status'      => 'success',
@@ -194,9 +191,8 @@ class EventOrdersController extends MyBaseController
         ]);
     }
 
-
     /**
-     * Cancels an order
+     * Cancels an order.
      *
      * @param Request $request
      * @param $order_id
@@ -208,7 +204,7 @@ class EventOrdersController extends MyBaseController
             'refund_amount' => ['numeric'],
         ];
         $messages = [
-            'refund_amount.integer' => trans("Controllers.refund_only_numbers_error"),
+            'refund_amount.integer' => trans('Controllers.refund_only_numbers_error'),
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -229,21 +225,21 @@ class EventOrdersController extends MyBaseController
         $error_message = false;
 
         if ($refund_order && $order->payment_gateway->can_refund) {
-            if (!$order->transaction_id) {
-                $error_message = trans("Controllers.order_cant_be_refunded");
+            if (! $order->transaction_id) {
+                $error_message = trans('Controllers.order_cant_be_refunded');
             }
 
             if ($order->is_refunded) {
-                $error_message = trans("Controllers.order_already_refunded");
+                $error_message = trans('Controllers.order_already_refunded');
             } elseif ($order->organiser_amount == 0) {
-                $error_message = trans("Controllers.nothing_to_refund");
+                $error_message = trans('Controllers.nothing_to_refund');
             } elseif ($refund_type !== 'full' && $refund_amount > round(($order->organiser_amount - $order->amount_refunded),
                     2)
             ) {
-                $error_message = trans("Controllers.maximum_refund_amount", ["money"=>(money($order->organiser_amount - $order->amount_refunded,
+                $error_message = trans('Controllers.maximum_refund_amount', ['money'=>(money($order->organiser_amount - $order->amount_refunded,
                         $order->event->currency))]);
             }
-            if (!$error_message) {
+            if (! $error_message) {
                 try {
                     $gateway = Omnipay::create($order->payment_gateway->name);
 
@@ -280,7 +276,7 @@ class EventOrdersController extends MyBaseController
                     $order->save();
                 } catch (\Exeption $e) {
                     Log::error($e);
-                    $error_message = trans("Controllers.refund_exception");
+                    $error_message = trans('Controllers.refund_exception');
                 }
             }
 
@@ -306,21 +302,22 @@ class EventOrdersController extends MyBaseController
                 $attendee->save();
 
                 $eventStats = EventStats::where('event_id', $attendee->event_id)->where('date', $attendee->created_at->format('Y-m-d'))->first();
-                if($eventStats){
-                    $eventStats->decrement('tickets_sold',  1);
-                    $eventStats->decrement('sales_volume',  $attendee->ticket->price);
+                if ($eventStats) {
+                    $eventStats->decrement('tickets_sold', 1);
+                    $eventStats->decrement('sales_volume', $attendee->ticket->price);
                 }
             }
         }
-        if(!$refund_amount && !$attendees)
-            $msg = trans("Controllers.nothing_to_do");
-        else {
-            if($attendees && $refund_order)
-                $msg = trans("Controllers.successfully_refunded_and_cancelled");
-            else if($refund_order)
-                $msg = trans("Controllers.successfully_refunded_order");
-            else if($attendees)
-                $msg = trans("Controllers.successfully_cancelled_attendees");
+        if (! $refund_amount && ! $attendees) {
+            $msg = trans('Controllers.nothing_to_do');
+        } else {
+            if ($attendees && $refund_order) {
+                $msg = trans('Controllers.successfully_refunded_and_cancelled');
+            } elseif ($refund_order) {
+                $msg = trans('Controllers.successfully_refunded_order');
+            } elseif ($attendees) {
+                $msg = trans('Controllers.successfully_cancelled_attendees');
+            }
         }
         \Session::flash('message', $msg);
 
@@ -331,7 +328,7 @@ class EventOrdersController extends MyBaseController
     }
 
     /**
-     * Exports order to popular file types
+     * Exports order to popular file types.
      *
      * @param $event_id
      * @param string $export_as Accepted: xls, xlsx, csv, pdf, html
@@ -340,18 +337,16 @@ class EventOrdersController extends MyBaseController
     {
         $event = Event::scope()->findOrFail($event_id);
 
-        Excel::create('orders-as-of-' . date('d-m-Y-g.i.a'), function ($excel) use ($event) {
-
-            $excel->setTitle('Orders For Event: ' . $event->title);
+        Excel::create('orders-as-of-'.date('d-m-Y-g.i.a'), function ($excel) use ($event) {
+            $excel->setTitle('Orders For Event: '.$event->title);
 
             // Chain the setters
             $excel->setCreator(config('attendize.app_name'))
                 ->setCompany(config('attendize.app_name'));
 
             $excel->sheet('orders_sheet_1', function ($sheet) use ($event) {
-
-                $yes = strtoupper(trans("basic.yes"));
-                $no = strtoupper(trans("basic.no"));
+                $yes = strtoupper(trans('basic.yes'));
+                $no = strtoupper(trans('basic.no'));
                 $orderRows = DB::table('orders')
                     ->where('orders.event_id', '=', $event->id)
                     ->where('orders.event_id', '=', $event->id)
@@ -369,23 +364,23 @@ class EventOrdersController extends MyBaseController
 
                 $exportedOrders = $orderRows->toArray();
 
-                array_walk($exportedOrders, function(&$value) {
-                    $value = (array)$value;
+                array_walk($exportedOrders, function (&$value) {
+                    $value = (array) $value;
                 });
 
                 $sheet->fromArray($exportedOrders);
 
                 // Add headings to first row
                 $sheet->row(1, [
-                    trans("Attendee.first_name"),
-                    trans("Attendee.last_name"),
-                    trans("Attendee.email"),
-                    trans("Order.order_ref"),
-                    trans("Order.amount"),
-                    trans("Order.fully_refunded"),
-                    trans("Order.partially_refunded"),
-                    trans("Order.amount_refunded"),
-                    trans("Order.order_date"),
+                    trans('Attendee.first_name'),
+                    trans('Attendee.last_name'),
+                    trans('Attendee.email'),
+                    trans('Order.order_ref'),
+                    trans('Order.amount'),
+                    trans('Order.fully_refunded'),
+                    trans('Order.partially_refunded'),
+                    trans('Order.amount_refunded'),
+                    trans('Order.order_date'),
                 ]);
 
                 // Set gray background on first row
@@ -397,7 +392,7 @@ class EventOrdersController extends MyBaseController
     }
 
     /**
-     * shows 'Message Order Creator' modal
+     * shows 'Message Order Creator' modal.
      *
      * @param Request $request
      * @param $order_id
@@ -416,7 +411,7 @@ class EventOrdersController extends MyBaseController
     }
 
     /**
-     * Sends message to order creator
+     * Sends message to order creator.
      *
      * @param Request $request
      * @param $order_id
@@ -461,18 +456,18 @@ class EventOrdersController extends MyBaseController
                 $message->to($order->event->organiser->email)
                     ->from(config('attendize.outgoing_email_noreply'), $order->event->organiser->name)
                     ->replyTo($order->event->organiser->email, $order->event->organiser->name)
-                    ->subject($data['subject'] . trans("Email.organiser_copy"));
+                    ->subject($data['subject'].trans('Email.organiser_copy'));
             });
         }
 
         return response()->json([
             'status'  => 'success',
-            'message' => trans("Controllers.message_successfully_sent"),
+            'message' => trans('Controllers.message_successfully_sent'),
         ]);
     }
 
     /**
-     * Mark an order as payment received
+     * Mark an order as payment received.
      *
      * @param Request $request
      * @param $order_id
@@ -487,7 +482,7 @@ class EventOrdersController extends MyBaseController
 
         $order->save();
 
-        session()->flash('message', trans("Controllers.order_payment_status_successfully_updated"));
+        session()->flash('message', trans('Controllers.order_payment_status_successfully_updated'));
 
         return response()->json([
             'status' => 'success',

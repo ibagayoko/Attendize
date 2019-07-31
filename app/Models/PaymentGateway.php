@@ -3,11 +3,8 @@
 namespace App\Models;
 
 /**
- * Class PaymentGateway
- * @package App\Models
+ * Class PaymentGateway.
  */
 class PaymentGateway extends MyBaseModel
 {
-
-
 }
