@@ -83,7 +83,7 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('payment_gateway_id')->default(config('attendize.payment_gateway_stripe'));
             $t->nullableTimestamps();
             $t->softDeletes();
-            
+
             $t->string('name')->nullable();
             $t->string('last_ip')->nullable();
             $t->timestamp('last_login_date')->nullable();
@@ -105,7 +105,7 @@ class CreateUsersTable extends Migration
             $t->string('stripe_secret_key', 55)->nullable();
             $t->string('stripe_publishable_key', 55)->nullable();
             $t->text('stripe_data_raw', 55)->nullable();
-            
+
             $t->foreign('timezone_id')->references('id')->on('timezones');
             $t->foreign('date_format_id')->references('id')->on('date_formats');
             $t->foreign('datetime_format_id')->references('id')->on('date_formats');
@@ -156,7 +156,7 @@ class CreateUsersTable extends Migration
             $table->string('google_analytics_code')->nullable();
             $table->string('google_tag_manager_code', 20)->nullable();
             $table->boolean('enable_organiser_page')->default(true);
-            
+
             $table->boolean('show_twitter_widget')->default(false);
             $table->boolean('show_facebook_widget')->default(false);
 
@@ -215,7 +215,6 @@ class CreateUsersTable extends Migration
             $t->string('location_lat')->nullable();
             $t->string('location_long')->nullable();
             $t->string('location_google_place_id')->nullable();
-
 
             $t->text('pre_order_display_message')->nullable();
 
