@@ -156,9 +156,11 @@ class CreateUsersTable extends Migration
             $table->string('facebook');
             $table->string('twitter');
             $table->string('logo_path')->nullable();
-            $table->boolean('is_email_confirmed')->default(0);
+            $table->boolean('is_email_confirmed')->default(false);
             $table->string('google_analytics_code')->nullable();
             $table->string('google_tag_manager_code', 20)->nullable();
+            $table->boolean('enable_organiser_page')->default(true);
+
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
         });
@@ -215,6 +217,9 @@ class CreateUsersTable extends Migration
             $t->text('pre_order_display_message')->nullable();
 
             $t->text('post_order_display_message')->nullable();
+            
+            $t->boolean('enable_offline_payments')->default(0);
+            $t->text('offline_payment_instructions')->nullable();
 
             $t->text('social_share_text')->nullable();
             $t->boolean('social_show_facebook')->default(true);
@@ -222,6 +227,8 @@ class CreateUsersTable extends Migration
             $t->boolean('social_show_twitter')->default(true);
             $t->boolean('social_show_email')->default(true);
             $t->boolean('social_show_googleplus')->default(true);
+            $t->boolean('social_show_whatsapp')->default(true);
+
 
             $t->unsignedInteger('location_is_manual')->default(0);
 
@@ -270,6 +277,7 @@ class CreateUsersTable extends Migration
             $t->boolean('is_cancelled')->default(0);
             $t->boolean('is_partially_refunded')->default(0);
             $t->boolean('is_refunded')->default(0);
+            $t->boolean('is_payment_received')->default(0);
 
             $t->decimal('amount', 13, 2);
             $t->decimal('amount_refunded', 13, 2)->nullable();
