@@ -157,6 +157,8 @@ class CreateUsersTable extends Migration
             $table->string('twitter');
             $table->string('logo_path')->nullable();
             $table->boolean('is_email_confirmed')->default(0);
+            $table->string('google_analytics_code')->nullable();
+            $table->string('google_tag_manager_code', 20)->nullable();
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
         });
@@ -224,6 +226,17 @@ class CreateUsersTable extends Migration
             $t->unsignedInteger('location_is_manual')->default(0);
 
             $t->boolean('is_live')->default(false);
+                /*
+             * @see https://github.com/milon/barcode
+             *  AddTicketDesignOptions
+             */
+            $t->string('barcode_type', 20)->default('QRCODE');
+            $t->string('ticket_border_color', 20)->default('#000000');
+            $t->string('ticket_bg_color', 20)->default('#FFFFFF');
+            $t->string('ticket_text_color', 20)->default('#000000');
+            $t->string('ticket_sub_text_color', 20)->default('#999999');
+            $t->string('google_tag_manager_code', 20)->nullable();
+
 
             $t->nullableTimestamps();
             $t->softDeletes();
