@@ -20,7 +20,6 @@ class CreateGatewaysTable extends Migration
             $table->boolean('can_refund')->default(0);
             $table->string('name', 50);
         });
-
     }
 
     /**
