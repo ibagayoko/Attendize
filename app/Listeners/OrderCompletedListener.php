@@ -2,18 +2,17 @@
 
 namespace App\Listeners;
 
-use App\Events\OrderCompletedEvent;
 use App\Jobs\GenerateTicket;
-use App\Jobs\SendOrderNotification;
 use App\Jobs\SendOrderTickets;
-use App\Jobs\ProcessGenerateAndSendTickets;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Events\OrderCompletedEvent;
+use App\Jobs\SendOrderNotification;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\ProcessGenerateAndSendTickets;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class OrderCompletedListener implements ShouldQueue
 {
-
     use DispatchesJobs;
 
     /**
@@ -35,13 +34,13 @@ class OrderCompletedListener implements ShouldQueue
      */
     public function handle(OrderCompletedEvent $event)
     {
-        /**
+        /*
          * Generate the PDF tickets and send notification emails etc.
          */
-        Log::info('Begin Processing Order: ' . $event->order->order_reference);
+        Log::info('Begin Processing Order: '.$event->order->order_reference);
         ProcessGenerateAndSendTickets::withChain([
             new GenerateTicket($event->order->order_reference),
-            new SendOrderTickets($event->order)
+            new SendOrderTickets($event->order),
         ])->dispatch();
 
         $this->dispatch(new SendOrderNotification($event->order));

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-    /*
+/*
       Attendize.com   - Event Management & Ticketing
      */
 
@@ -16,7 +16,7 @@ class OrderItem extends MyBaseModel
     /**
      * Indicates if the model should be timestamped.
      *
-     * @var bool $timestamps
+     * @var bool
      */
     public $timestamps = false;
 }

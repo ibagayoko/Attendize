@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use Mail;
+use Cookie;
+use Validator;
+use App\Models\Event;
 use App\Attendize\Utils;
 use App\Models\Affiliate;
-use App\Models\Event;
-use App\Models\EventAccessCodes;
 use App\Models\EventStats;
-use Auth;
-use Cookie;
 use Illuminate\Http\Request;
-use Mail;
-use Validator;
+use App\Models\EventAccessCodes;
 
 class EventViewController extends Controller
 {
     /**
-     * Show the homepage for an event
+     * Show the homepage for an event.
      *
      * @param Request $request
      * @param $event_id
@@ -28,7 +28,7 @@ class EventViewController extends Controller
     {
         $event = Event::findOrFail($event_id);
 
-        if (!Utils::userOwns($event) && !$event->is_live) {
+        if (! Utils::userOwns($event) && ! $event->is_live) {
             return view('Public.ViewEvent.EventNotLivePage');
         }
 
@@ -40,7 +40,7 @@ class EventViewController extends Controller
         /*
          * Don't record stats if we're previewing the event page from the backend or if we own the event.
          */
-        if (!$preview && !Auth::check()) {
+        if (! $preview && ! Auth::check()) {
             $event_stats = new EventStats();
             $event_stats->updateViewCount($event_id);
         }
@@ -59,11 +59,11 @@ class EventViewController extends Controller
                     'tickets_sold' => 0,
                 ]);
 
-                ++$affiliate->visits;
+                $affiliate->visits++;
 
                 $affiliate->save();
 
-                Cookie::queue('affiliate_' . $event_id, $affiliate_ref, 60 * 24 * 60);
+                Cookie::queue('affiliate_'.$event_id, $affiliate_ref, 60 * 24 * 60);
             }
         }
 
@@ -71,7 +71,7 @@ class EventViewController extends Controller
     }
 
     /**
-     * Show preview of event homepage / used for backend previewing
+     * Show preview of event homepage / used for backend previewing.
      *
      * @param $event_id
      * @return mixed
@@ -82,7 +82,7 @@ class EventViewController extends Controller
     }
 
     /**
-     * Sends a message to the organiser
+     * Sends a message to the organiser.
      *
      * @param Request $request
      * @param $event_id
@@ -118,12 +118,12 @@ class EventViewController extends Controller
             $message->to($event->organiser->email, $event->organiser->name)
                 ->from(config('attendize.outgoing_email_noreply'), $data['sender_name'])
                 ->replyTo($data['sender_email'], $data['sender_name'])
-                ->subject(trans("Email.message_regarding_event", ["event"=>$event->title]));
+                ->subject(trans('Email.message_regarding_event', ['event'=>$event->title]));
         });
 
         return response()->json([
             'status'  => 'success',
-            'message' => trans("Controllers.message_successfully_sent"),
+            'message' => trans('Controllers.message_successfully_sent'),
         ]);
     }
 
@@ -135,7 +135,7 @@ class EventViewController extends Controller
 
         return response()->make($icsContent, 200, [
             'Content-Type' => 'application/octet-stream',
-            'Content-Disposition' => 'attachment; filename="event.ics'
+            'Content-Disposition' => 'attachment; filename="event.ics',
         ]);
     }
 
@@ -149,7 +149,7 @@ class EventViewController extends Controller
         $event = Event::findOrFail($event_id);
 
         $accessCode = strtoupper(strip_tags($request->get('access_code')));
-        if (!$accessCode) {
+        if (! $accessCode) {
             return response()->json([
                 'status' => 'error',
                 'message' => trans('AccessCodes.valid_code_required'),
@@ -160,9 +160,9 @@ class EventViewController extends Controller
             ->where('is_hidden', true)
             ->orderBy('sort_order', 'asc')
             ->get()
-            ->filter(function($ticket) use ($accessCode) {
+            ->filter(function ($ticket) use ($accessCode) {
                 // Only return the hidden tickets that match the access code
-                return ($ticket->event_access_codes()->where('code', $accessCode)->get()->count() > 0);
+                return $ticket->event_access_codes()->where('code', $accessCode)->get()->count() > 0;
             });
 
         if ($unlockedHiddenTickets->count() === 0) {

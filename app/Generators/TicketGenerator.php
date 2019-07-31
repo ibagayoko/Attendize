@@ -1,51 +1,48 @@
 <?php
 
-
 namespace App\Generators;
 
-
-use App\Models\Attendee;
 use App\Models\Event;
 use App\Models\Order;
 use App\Models\Ticket;
-use Intervention\Image\Facades\Image;
-use Intervention\Image\Gd\Font;
+use App\Models\Attendee;
 use Milon\Barcode\DNS1D;
 use Milon\Barcode\DNS2D;
+use Intervention\Image\Gd\Font;
+use Intervention\Image\Facades\Image;
 
 /**
- * Create a ticket using Intervention Image
+ * Create a ticket using Intervention Image.
  *
  * Class TicketGenerator
- * @package App\Generators
  */
 class TicketGenerator
 {
     /**
-     * Order information
+     * Order information.
      *
-     * @var Order $order
+     * @var Order
      */
     private $order;
 
     /**
-     * Array where store all generated tickets
+     * Array where store all generated tickets.
      *
-     * @var array $all_tickets
+     * @var array
      */
     private $all_tickets = [];
 
     /**
-     * Ticket Banner/Flyer
+     * Ticket Banner/Flyer.
      *
-     * @var mixed $ticket_banner
+     * @var mixed
      */
     private $ticket_banner = null;
 
     /**
-     * Organizer Logo
+     * Organizer Logo.
      *
-     * @var mixed $organizer_logo
+     * @var mixed
      */
     private $organizer_logo = null;
 
@@ -60,7 +57,7 @@ class TicketGenerator
     }
 
     /**
-     * Create all tickets for an order
+     * Create all tickets for an order.
      *
      * @return array
      */
@@ -68,7 +65,7 @@ class TicketGenerator
     {
         foreach ($this->order->attendees as $attendee) {
             // Only generate if not cancelled
-            if (!$attendee->is_cancelled) {
+            if (! $attendee->is_cancelled) {
                 $this->all_tickets[] = $this->createTicket($attendee);
             }
         }
@@ -76,9 +73,8 @@ class TicketGenerator
         return $this->all_tickets;
     }
 
-
     /**
-     * Create a ticket
+     * Create a ticket.
      *
      * @param Attendee $attendee
      * @return mixed
@@ -128,7 +124,7 @@ class TicketGenerator
     private function createBanner()
     {
         // This prevents image recreation and saves server resources.
-        if (!$this->ticket_banner === null) {
+        if (! $this->ticket_banner === null) {
             return $this->ticket_banner;
         }
 
@@ -148,7 +144,7 @@ class TicketGenerator
     private function createOrganizerLogo()
     {
         // This prevents image recreation and saves server resources.
-        if (!$this->organizer_logo === null) {
+        if (! $this->organizer_logo === null) {
             return $this->organizer_logo;
         }
 
@@ -160,7 +156,7 @@ class TicketGenerator
     }
 
     /**
-     * Create QR container and Barcode
+     * Create QR container and Barcode.
      *
      * @param Attendee $attendee
      * @return \Intervention\Image\Image
@@ -172,7 +168,7 @@ class TicketGenerator
 
         // Create the QR (Recommended Size 240x240)
         $qrcode = Image::make(
-            DNS2D::getBarcodePNG($attendee->private_reference_number, "QRCODE", 240, 240)
+            DNS2D::getBarcodePNG($attendee->private_reference_number, 'QRCODE', 240, 240)
         )->resize(240, 240);
 
         // Add QR image to the container
@@ -182,7 +178,7 @@ class TicketGenerator
     }
 
     /**
-     * Create 1D container and Barcode
+     * Create 1D container and Barcode.
      *
      * @param Attendee $attendee
      * @return \Intervention\Image\Image
@@ -194,7 +190,7 @@ class TicketGenerator
 
         // Create the barcode (Recommended Size 280x60)
         $barcode = Image::make(
-            DNS1D::getBarcodePNG($attendee->private_reference_number, "C39+", 100, 200)
+            DNS1D::getBarcodePNG($attendee->private_reference_number, 'C39+', 100, 200)
         )->resize(280, 60);
 
         $barcodeContainer->insert($barcode, 'center', 0, 0);
@@ -203,7 +199,7 @@ class TicketGenerator
     }
 
     /**
-     * Create Reference Number text
+     * Create Reference Number text.
      *
      * @param \Intervention\Image\Image $ticket
      * @param Attendee $attendee
@@ -213,7 +209,7 @@ class TicketGenerator
     {
         // $order->order_reference
         return $ticket->text($attendee->reference, 171, 400, function ($font) {
-            /** @var Font $font */
+            /* @var Font $font */
             $font->file(public_path('assets/fonts/OpenSans-Bold.ttf'));
             $font->size(42);
             $font->color($this->order->event->ticket_text_color);
@@ -223,7 +219,7 @@ class TicketGenerator
     }
 
     /**
-     * Create Organizer Name text
+     * Create Organizer Name text.
      *
      * @param \Intervention\Image\Image $ticket
      * @return \Intervention\Image\Image
@@ -233,7 +229,7 @@ class TicketGenerator
         // Add organiser name
         return $ticket->text($this->shortenText($this->order->event->organiser->name), 171, 480,
             function ($font) {
-                /** @var Font $font */
+                /* @var Font $font */
                 $font->file(public_path('assets/fonts/OpenSans-Regular.ttf'));
                 $font->size(22);
                 $font->color($this->order->event->ticket_text_color);
@@ -244,7 +240,7 @@ class TicketGenerator
     }
 
     /**
-     * Create Event title text
+     * Create Event title text.
      *
      * @param \Intervention\Image\Image $ticket
      * @return \Intervention\Image\Image
@@ -254,7 +250,7 @@ class TicketGenerator
         // Add organiser name
         return $ticket->text($this->shortenText($this->order->event->title), 171, 520,
             function ($font) {
-                /** @var Font $font */
+                /* @var Font $font */
                 $font->file(public_path('assets/fonts/OpenSans-Regular.ttf'));
                 $font->size(22);
                 $font->color($this->order->event->ticket_text_color);
@@ -265,7 +261,7 @@ class TicketGenerator
     }
 
     /**
-     * Create Info Text text
+     * Create Info Text text.
      *
      * @param \Intervention\Image\Image $ticket
      * @param Attendee $attendee
@@ -279,9 +275,9 @@ class TicketGenerator
             [
                 'y'    => 28,
                 'text' => [
-                    $this->shortenText($attendee->first_name . ' ' . $attendee->last_name, 52),
-                    $this->shortenText($attendee->ticket->title, 52)
-                ]
+                    $this->shortenText($attendee->first_name.' '.$attendee->last_name, 52),
+                    $this->shortenText($attendee->ticket->title, 52),
+                ],
             ],
             // Line 2
             [
@@ -289,9 +285,9 @@ class TicketGenerator
                 'text' => [
                     $this->shortenText($this->order->event->venue_name, 52),
                     $this->order->event->startDateFormatted(),
-                    $this->order->event->endDateFormatted()
-                ]
-            ]
+                    $this->order->event->endDateFormatted(),
+                ],
+            ],
         ];
 
         // Create text container
@@ -299,8 +295,8 @@ class TicketGenerator
 
         // Insert each line
         foreach ($lines as $line) {
-            $text_container->text(join(' · ', $line['text']), 20, $line['y'], function ($font) {
-                /** @var Font $font */
+            $text_container->text(implode(' · ', $line['text']), 20, $line['y'], function ($font) {
+                /* @var Font $font */
                 $font->file(public_path('assets/fonts/OpenSans-SemiBold.ttf'));
                 $font->size(22);
                 $font->color($this->order->event->ticket_text_color);
@@ -314,7 +310,7 @@ class TicketGenerator
     }
 
     /**
-     * Create Price text
+     * Create Price text.
      *
      * @param \Intervention\Image\Image $ticket
      * @param Attendee $attendee
@@ -336,7 +332,7 @@ class TicketGenerator
         $price_container = Image::canvas($canvas_width, 60, $this->order->event->ticket_bg_color)->opacity(80);
 
         $price_container->text($money, $canvas_width / 2, 30, function ($font) {
-            /** @var Font $font */
+            /* @var Font $font */
             $font->file(public_path('assets/fonts/OpenSans-Bold.ttf'));
             $font->size(40);
             $font->color($this->order->event->ticket_text_color);
@@ -349,7 +345,7 @@ class TicketGenerator
     }
 
     /**
-     * Shortens the text if it is too long
+     * Shortens the text if it is too long.
      *
      * @param $text
      * @param int $limit
@@ -358,14 +354,14 @@ class TicketGenerator
     private function shortenText($text, $limit = 20)
     {
         if (strlen($text) > $limit) {
-            return substr($text, 0, $limit) . '...';
+            return substr($text, 0, $limit).'...';
         }
 
         return $text;
     }
 
     /**
-     * Generate a fake ticket for demo purposes
+     * Generate a fake ticket for demo purposes.
      *
      * @param int $event_id Event ID
      * @return Order
@@ -392,14 +388,14 @@ class TicketGenerator
         $attendee->ticket->price = trans('Ticket.demo_price');
 
         $order->attendees = [
-            $attendee
+            $attendee,
         ];
 
         return $order;
     }
 
     /**
-     * Generate filename and path for generated PDFs
+     * Generate filename and path for generated PDFs.
      *
      * @param $reference
      * @return mixed
@@ -407,10 +403,10 @@ class TicketGenerator
     public static function generateFileName($reference)
     {
         $file['name'] = $reference;
-        $file['base_name'] = $file['name'] . '.pdf';
-        $file['base_path'] = public_path(config('attendize.event_pdf_tickets_path')) . '/';
-        $file['file_path'] = $file['base_path'] . $file['name'];
-        $file['fullpath'] = $file['file_path'] . $file['base_name'];
+        $file['base_name'] = $file['name'].'.pdf';
+        $file['base_path'] = public_path(config('attendize.event_pdf_tickets_path')).'/';
+        $file['file_path'] = $file['base_path'].$file['name'];
+        $file['fullpath'] = $file['file_path'].$file['base_name'];
 
         return $file;
     }

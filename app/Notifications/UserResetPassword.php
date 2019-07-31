@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
 class UserResetPassword extends Notification
@@ -41,7 +40,6 @@ class UserResetPassword extends Notification
      */
     public function toMail($notifiable)
     {
-
         $mailMessage = new MailMessage();
         $mailMessage->view('Emails.Auth.Reminder', ['token' => $this->token]);
 

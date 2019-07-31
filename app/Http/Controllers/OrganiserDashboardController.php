@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Organiser;
 use Carbon\Carbon;
+use App\Models\Organiser;
 
 class OrganiserDashboardController extends MyBaseController
 {
     /**
-     * Show the organiser dashboard
+     * Show the organiser dashboard.
      *
      * @param $organiser_id
      * @return mixed
@@ -26,9 +26,9 @@ class OrganiserDashboardController extends MyBaseController
                 'start' => $event->start_date->toIso8601String(),
                 'end'   => $event->end_date->toIso8601String(),
                 'url'   => route('showEventDashboard', [
-                    'event_id' => $event->id
+                    'event_id' => $event->id,
                 ]),
-                'color' => '#4E558F'
+                'color' => '#4E558F',
             ];
         }
 

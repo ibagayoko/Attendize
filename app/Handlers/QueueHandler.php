@@ -2,9 +2,9 @@
 
 namespace App\Handlers;
 
-use App\Mailers\OrderMailer;
-use Attendee;
 use Order;
+use Attendee;
+use App\Mailers\OrderMailer;
 
 //use PDF;
 
@@ -37,7 +37,7 @@ class QueueHandler
             'attendees' => $order->attendees,
         ];
 
-        $pdf_file = storage_path() . '/' . $order->order_reference;
+        $pdf_file = storage_path().'/'.$order->order_reference;
         exit($pdf_file);
 
         PDF::setOutputMode('F'); // force to file

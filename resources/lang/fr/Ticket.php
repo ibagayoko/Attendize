@@ -1,6 +1,6 @@
 <?php
 
-return array(
+return [
     'attendee_ref'               => 'Réf. participant',
     'coupon_codes'               => 'Codes Coupon',
     'create_ticket'              => 'Créer un billet',
@@ -47,4 +47,4 @@ return array(
     'ticket_text_color'          => 'Couleur de texte du billet',
     'ticket_type'                => 'Type de billet',
     'venue'                      => 'Lieu',
-);
+];

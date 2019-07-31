@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 |--------------------------------------------------------------------------
 | Model Factories
@@ -32,46 +31,44 @@ $factory->define(App\Models\ReservedTickets::class, function (Faker\Generator $f
         'event_id'          => factory(App\Models\Event::class)->create()->id,
         'quantity_reserved' => 50,
         'expires'           => Carbon::now()->addDays(2),
-        'session_id'        => $faker->randomNumber
+        'session_id'        => $faker->randomNumber,
     ];
 });
 
 $factory->define(App\Models\Timezone::class, function (Faker\Generator $faker) {
     return [
         'name'     => 'America/New_York',
-        'location' => 'New York'
+        'location' => 'New York',
     ];
 });
-
 
 $factory->define(App\Models\DateFormat::class, function (Faker\Generator $faker) {
     return [
-        'format'        => "Y-m-d",
-        'picker_format' => "Y-m-d",
-        'label'         => "utc date",
+        'format'        => 'Y-m-d',
+        'picker_format' => 'Y-m-d',
+        'label'         => 'utc date',
     ];
 });
 
-
 $factory->define(App\Models\DateTimeFormat::class, function (Faker\Generator $faker) {
     return [
-        'format'        => "Y-m-d H:i:s",
-        'picker_format' => "Y-m-d H:i:s",
-        'label'         => "utc",
+        'format'        => 'Y-m-d H:i:s',
+        'picker_format' => 'Y-m-d H:i:s',
+        'label'         => 'utc',
     ];
 });
 
 $factory->define(App\Models\Currency::class, function (Faker\Generator $faker) {
     return [
-        'title'          => "Dollar",
-        'symbol_left'    => "$",
-        'symbol_right'   => "",
+        'title'          => 'Dollar',
+        'symbol_left'    => '$',
+        'symbol_right'   => '',
         'code'           => 'USD',
         'decimal_place'  => 2,
         'value'          => 100.00,
         'decimal_point'  => '.',
         'thousand_point' => ',',
-        'status'         => 1
+        'status'         => 1,
     ];
 });
 
@@ -86,10 +83,10 @@ $factory->define(App\Models\Account::class, function (Faker\Generator $faker) {
         'datetime_format_id'     => factory(App\Models\DateTimeFormat::class)->create()->id,
         'currency_id'            => factory(App\Models\Currency::class)->create()->id,
         'name'                   => $faker->name,
-        'last_ip'                => "127.0.0.1",
+        'last_ip'                => '127.0.0.1',
         'last_login_date'        => Carbon::now()->subDays(2),
         'address1'               => $faker->address,
-        'address2'               => "",
+        'address2'               => '',
         'city'                   => $faker->city,
         'state'                  => $faker->stateAbbr,
         'postal_code'            => $faker->postcode,
@@ -118,7 +115,7 @@ $factory->define(App\Models\User::class, function (Faker\Generator $faker) {
         'is_registered'     => false,
         'is_confirmed'      => false,
         'is_parent'         => false,
-        'remember_token'    => $faker->randomNumber
+        'remember_token'    => $faker->randomNumber,
     ];
 });
 
@@ -141,10 +138,10 @@ $factory->define(App\Models\Organiser::class, function (Faker\Generator $faker) 
         'page_text_color'           => '#000000',
         'enable_organiser_page'     => $faker->boolean,
         'google_analytics_code'     => null,
-        'tax_name'                  => $faker->text(11) . ' tax',
+        'tax_name'                  => $faker->text(11).' tax',
         'tax_value'                 => $faker->randomFloat(2, 0, 30),
         'tax_id'                    => $faker->randomDigitNotNull,
-        'charge_tax'                => $faker->boolean
+        'charge_tax'                => $faker->boolean,
     ];
 });
 
@@ -189,7 +186,7 @@ $factory->define(App\Models\Event::class, function (Faker\Generator $faker) {
         'social_show_email'          => true,
         'social_show_googleplus'     => true,
         'location_is_manual'         => 0,
-        'is_live'                    => false
+        'is_live'                    => false,
     ];
 });
 
@@ -217,10 +214,9 @@ $factory->define(App\Models\Order::class, function (Faker\Generator $faker) {
         'event_id'              => factory(App\Models\Event::class)->create()->id,
         'payment_gateway_id'    => 1,
         'is_payment_received'   => false,
-        'taxamt'                => 0
+        'taxamt'                => 0,
     ];
 });
-
 
 $factory->define(App\Models\Ticket::class, function (Faker\Generator $faker) {
     return [
@@ -243,7 +239,7 @@ $factory->define(App\Models\Ticket::class, function (Faker\Generator $faker) {
         'is_paused'             => 0,
         'public_id'             => null,
         'sort_order'            => 0,
-        'is_hidden'             => false
+        'is_hidden'             => false,
     ];
 });
 
@@ -253,7 +249,7 @@ $factory->define(App\Models\OrderItem::class, function (Faker\Generator $faker) 
         'quantity'         => 5,
         'unit_price'       => 20.00,
         'unit_booking_fee' => 2.00,
-        'order_id'         => factory(App\Models\Order::class)->create()->id
+        'order_id'         => factory(App\Models\Order::class)->create()->id,
     ];
 });
 
@@ -268,7 +264,6 @@ $factory->define(App\Models\EventStats::class, function (Faker\Generator $faker)
         'event_id'              => factory(App\Models\Event::class)->create()->id,
     ];
 });
-
 
 $factory->define(App\Models\Attendee::class, function (Faker\Generator $faker) {
     return [
@@ -301,6 +296,6 @@ $factory->define(App\Models\EventImage::class, function (Faker\Generator $faker)
         'image_path' => $faker->imageUrl(),
         'event_id'   => factory(App\Models\Event::class)->create()->id,
         'account_id' => factory(App\Models\Account::class)->create()->id,
-        'user_id'    => factory(App\Models\User::class)->create()->id
+        'user_id'    => factory(App\Models\User::class)->create()->id,
     ];
 });

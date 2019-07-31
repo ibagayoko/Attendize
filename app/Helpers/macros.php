@@ -1,6 +1,5 @@
 <?php
 
-
 Validator::extend('passcheck', function ($attribute, $value, $parameters) {
     return \Hash::check($value, \Auth::user()->getAuthPassword());
 });
@@ -19,9 +18,9 @@ Form::macro('labelWithHelp', function ($name, $value, $options, $help_text) {
     $label = Form::label($name, '%s', $options);
 
     return sprintf($label, $value)
-    . '<a style="margin-left: 4px;font-size: 11px;" href="javascript:showHelp(' . "'" . $help_text . "'" . ');" >'
-    . '<i class="ico ico-question "></i>'
-    . '</a>';
+    .'<a style="margin-left: 4px;font-size: 11px;" href="javascript:showHelp('."'".$help_text."'".');" >'
+    .'<i class="ico ico-question "></i>'
+    .'</a>';
 });
 
 Form::macro('customCheckbox', function ($name, $value, $checked = false, $label = false, $options = []) {
@@ -38,17 +37,17 @@ Form::macro('customCheckbox', function ($name, $value, $checked = false, $label 
 });
 
 Form::macro('styledFile', function ($name, $multiple = false) {
-    $out = '<div class="styledFile" id="input-' . $name . '">
+    $out = '<div class="styledFile" id="input-'.$name.'">
         <div class="input-group">
             <span class="input-group-btn">
                 <span class="btn btn-primary btn-file ">
-                    '.trans("basic.browse").'&hellip; <input name="' . $name . '" type="file" ' . ($multiple ? 'multiple' : '') . '>
+                    '.trans('basic.browse').'&hellip; <input name="'.$name.'" type="file" '.($multiple ? 'multiple' : '').'>
                 </span>
             </span>
             <input type="text" class="form-control" readonly>
             <span style="display: none;" class="input-group-btn btn-upload-file">
                 <span class="btn btn-success ">
-                    '.trans("basic.upload").'
+                    '.trans('basic.upload').'
                 </span>
             </span>
         </div>
@@ -59,7 +58,6 @@ Form::macro('styledFile', function ($name, $multiple = false) {
 
 HTML::macro('sortable_link',
     function ($title, $active_sort, $sort_by, $sort_order, $url_params = [], $class = '', $extra = '') {
-
         $sort_order = $sort_order == 'asc' ? 'desc' : 'asc';
 
         $url_params = http_build_query([

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Contracts\Auth\Guard;
-use Illuminate\Http\Request;
-use Redirect;
 use View;
+use Redirect;
+use Illuminate\Http\Request;
+use Illuminate\Contracts\Auth\Guard;
 
 class UserLoginController extends Controller
 {
@@ -54,13 +54,13 @@ class UserLoginController extends Controller
 
         if (empty($email) || empty($password)) {
             return Redirect::back()
-                ->with(['message' => trans("Controllers.fill_email_and_password"), 'failed' => true])
+                ->with(['message' => trans('Controllers.fill_email_and_password'), 'failed' => true])
                 ->withInput();
         }
 
         if ($this->auth->attempt(['email' => $email, 'password' => $password], true) === false) {
             return Redirect::back()
-                ->with(['message' => trans("Controllers.login_password_incorrect"), 'failed' => true])
+                ->with(['message' => trans('Controllers.login_password_incorrect'), 'failed' => true])
                 ->withInput();
         }
 

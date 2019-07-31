@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use View;
+use JavaScript;
 use App\Models\Event;
 use App\Models\Organiser;
-use Auth;
-use JavaScript;
-use View;
-
 
 class MyBaseController extends Controller
 {
     public function __construct()
     {
-
         if (empty(Auth::user())) {
             return redirect()->to('/login');
         }
@@ -29,7 +27,7 @@ class MyBaseController extends Controller
             ],
             'DateTimeFormat'      => config('attendize.default_date_picker_format'),
             'DateSeparator'       => config('attendize.default_date_picker_seperator'),
-            'GenericErrorMessage' => trans("Controllers.whoops"),
+            'GenericErrorMessage' => trans('Controllers.whoops'),
         ]);
         /*
          * Share the organizers across all views
@@ -53,7 +51,7 @@ class MyBaseController extends Controller
         if ($event->images->first() != null) {
             $image_path = $event->images()->first()->image_path;
         }
-      
+
         return array_merge([
             'event'      => $event,
             'questions'  => $event->questions()->get(),
@@ -68,7 +66,7 @@ class MyBaseController extends Controller
      */
     protected function setupLayout()
     {
-        if (!is_null($this->layout)) {
+        if (! is_null($this->layout)) {
             $this->layout = View::make($this->layout);
         }
     }
