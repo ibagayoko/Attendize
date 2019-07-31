@@ -601,7 +601,7 @@ class EventAttendeesController extends MyBaseController
                         'attendees.arrival_time',
                     ])->get();
 
-                $data = Arr::map(function ($object) {
+                $data = array_map(function ($object) {
                     return (array)$object;
                 }, $data->toArray());
 
