@@ -132,6 +132,7 @@ class CreateUsersTable extends Migration
             $t->boolean('is_confirmed')->default(false);
             $t->boolean('is_parent')->default(false);
             $t->string('remember_token', 100)->nullable();
+            $t->string('api_token', 60)->unique()->nullable();
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
         });
@@ -180,7 +181,7 @@ class CreateUsersTable extends Migration
             $t->string('bg_color')->default(config('attendize.event_default_bg_color'));
             $t->string('bg_image_path')->nullable();
             $t->text('description');
-
+            $t->boolean('is_1d_barcode_enabled')->default(0);
             $t->dateTime('start_date')->nullable();
             $t->dateTime('end_date')->nullable();
 
@@ -201,6 +202,7 @@ class CreateUsersTable extends Migration
             $t->decimal('organiser_fee_percentage', 4, 3)->default(0);
             $t->unsignedInteger('organiser_id');
             $t->foreign('organiser_id')->references('id')->on('organisers');
+            $t->string('event_image_position')->nullable();
 
             $t->string('venue_name');
             $t->string('venue_name_full')->nullable();
@@ -284,6 +286,7 @@ class CreateUsersTable extends Migration
 
             $t->decimal('amount', 13, 2);
             $t->decimal('amount_refunded', 13, 2)->nullable();
+            $t->float('taxamt')->nullable();
 
             $t->unsignedInteger('event_id')->index();
             $t->unsignedInteger('payment_gateway_id')->nullable();
@@ -313,6 +316,7 @@ class CreateUsersTable extends Migration
             $t->string('title');
             $t->text('description');
             $t->decimal('price', 13, 2);
+            $t->integer('sort_order')->default(0);
 
             $t->integer('max_per_person')->nullable()->default(null);
             $t->integer('min_per_person')->nullable()->default(null);
@@ -473,13 +477,14 @@ class CreateUsersTable extends Migration
             $t->string('last_name');
             $t->string('email');
 
-            $t->string('reference', 20);
-            $t->integer('private_reference_number')->index();
+            $t->integer('reference_index')->default(0);
+            $t->string('private_reference_number', 15)->index();
 
             $t->nullableTimestamps();
             $t->softDeletes();
 
             $t->boolean('is_cancelled')->default(false);
+            $t->boolean('is_refunded')->default(false);
             $t->boolean('has_arrived')->default(false);
             $t->dateTime('arrival_time')->nullable();
 

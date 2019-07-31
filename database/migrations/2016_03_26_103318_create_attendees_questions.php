@@ -34,7 +34,9 @@ class CreateAttendeesQuestions extends Migration
             $table->unsignedInteger('question_type_id');
             $table->unsignedInteger('account_id')->index();
 
+            $table->integer('sort_order')->default(1);
             $table->tinyInteger('is_required')->default(0);
+            $table->tinyInteger('is_enabled')->default(1);
 
             $table->timestamps();
             $table->softDeletes();
