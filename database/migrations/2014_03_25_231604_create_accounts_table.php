@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateAccountsTable extends Migration
@@ -13,7 +12,7 @@ class CreateAccountsTable extends Migration
      */
     public function up()
     {
-            /*
+        /*
          * Accounts table
          */
         Schema::create('accounts', function ($t) {
@@ -59,7 +58,6 @@ class CreateAccountsTable extends Migration
             $t->foreign('payment_gateway_id')->references('id')->on('payment_gateways');
             $t->foreign('currency_id')->references('id')->on('currencies');
         });
-
     }
 
     /**

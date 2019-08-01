@@ -11,8 +11,7 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-      
-    
+
         /*
          * Users Table
          */
@@ -36,14 +35,6 @@ class CreateUsersTable extends Migration
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
         });
-
-
-       
-
-        
-
-      
-
 
         /*
          * checkbox, multiselect, select, radio, text etc.
@@ -121,8 +112,6 @@ class CreateUsersTable extends Migration
 //        });
 //
 
-        
-
         /*
          * Tickets / Questions pivot table
          */
@@ -133,11 +122,6 @@ class CreateUsersTable extends Migration
 //            $t->integer('question_id')->unsigned()->index();
 //            $t->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
 //        });
-
-   
-       
-       
-        
     }
 
     /**

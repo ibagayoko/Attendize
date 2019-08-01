@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateEventStatsTable extends Migration
@@ -27,7 +26,6 @@ class CreateEventStatsTable extends Migration
 
             $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
         });
-
     }
 
     /**
