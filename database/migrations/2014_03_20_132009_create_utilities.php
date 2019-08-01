@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateUtilities extends Migration
@@ -52,7 +51,6 @@ class CreateUtilities extends Migration
             $t->string('picker_format');
             $t->string('label');
         });
-
     }
 
     /**

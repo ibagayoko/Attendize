@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateOrdersTable extends Migration
@@ -22,7 +21,7 @@ class CreateOrdersTable extends Migration
             $t->unsignedInteger('order_status_id');
             $t->nullableTimestamps();
             $t->softDeletes();
-            
+
             $t->string('first_name');
             $t->string('last_name');
             $t->string('email');
@@ -51,15 +50,12 @@ class CreateOrdersTable extends Migration
             $t->boolean('is_payment_received')->default(0);
             $t->boolean('is_business')->default(false);
 
-            
-
             $t->decimal('amount', 13, 2);
             $t->decimal('amount_refunded', 13, 2)->nullable();
             $t->float('taxamt')->nullable();
 
             $t->unsignedInteger('event_id')->index();
             $t->unsignedInteger('payment_gateway_id')->nullable();
-
 
             $t->foreign('payment_gateway_id')->references('id')->on('payment_gateways');
             $t->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
